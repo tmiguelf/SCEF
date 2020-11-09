@@ -1,0 +1,11 @@
+version: '{build}-{branch}'
+
+os: Visual Studio 2019 Preview
+
+install:
+    git submodule update --init --depth 1
+
+build: off
+
+build_script:
+    msbuild /t:Build /p:Configuration=Release "./UDEF.sln" -maxcpucount
