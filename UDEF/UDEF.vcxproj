@@ -43,6 +43,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)locations.props" />
     <Import Project="$(quickMSBuildPath)default.cpp.props" />
+    <Import Project="$(CoreLibPath)CoreLib.include.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
@@ -52,9 +53,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\UDEF.cpp" />
+    <ClCompile Include="src\udef_encoder.cpp" />
+    <ClCompile Include="src\udef_format.cpp" />
+    <ClCompile Include="src\udef_format_v1.cpp" />
+    <ClCompile Include="src\udef_items.cpp" />
+    <ClCompile Include="src\udef_stream.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\UDEF\UDEF.hpp" />
+    <ClInclude Include="include\UDEF\udef_items.hpp" />
+    <ClInclude Include="include\UDEF\udef_stream.hpp" />
+    <ClInclude Include="src\udef_danger_act_p.hpp" />
+    <ClInclude Include="src\udef_encoder.hpp" />
+    <ClInclude Include="src\udef_format.hpp" />
+    <ClInclude Include="src\udef_format_v1.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="UDEF.import.props" />
