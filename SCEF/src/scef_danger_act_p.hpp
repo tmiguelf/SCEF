@@ -27,29 +27,33 @@
 
 #pragma once
 
-#include <cstdint>
+#include <string>
+#include <SCEF/scef_items.hpp>
+#include <SCEF/SCEF.hpp>
 
-#include "UDEF/UDEF.hpp"
-
-namespace udef
-{
-class stream_decoder;
-class stream_encoder;
-}
-
-namespace udef::format
+namespace scef::_p
 {
 
-struct _Warning_Def
+class Danger_Action
 {
-	Error_Context* _error_context;
-	warningBehaviour (*_user_warning_callback)(const Error_Context&, void*);
-	void* _user_context;
-	inline warningBehaviour Notify() { return _user_warning_callback(*_error_context, _user_context);}
+public:
+	static inline void move_spacing(lineSpace& p_spacing, std::u8string& p_string)
+	{
+		p_spacing._space = std::move(p_string);
+	}
+
+	static inline void move_spacing(multiLineSpace& p_spacing, std::u8string& p_string)
+	{
+		p_spacing._space = std::move(p_string);
+	}
+
+	static inline void setlineCount(multiLineSpace& p_spacing, uint64_t p_count)
+	{
+		p_spacing._lines = p_count;
+	}
+
+	static inline _Error_Context& publicError(Error_Context& p_obj) { return p_obj; }
+
 };
 
-//Note:
-//	1. to simplify algorithm, let's agree that the caller to this function will set the line in the Error Context
-Error FinishVersionDecoding	(stream_decoder& p_decoder, uint16_t& p_version, Error_Context& p_err);
-Error WriteVersion			(stream_encoder& p_encoder, uint16_t p_version);
-} //namespace udef::format
+} //namespace scef::_p

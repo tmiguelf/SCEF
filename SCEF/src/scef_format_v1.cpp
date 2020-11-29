@@ -25,15 +25,15 @@
 ///		SOFTWARE.
 //======== ======== ======== ======== ======== ======== ======== ========
 
-#include "udef_format_v1.hpp"
+#include "scef_format_v1.hpp"
 
 #include <CoreLib/Core_String.hpp>
 
-#include "UDEF/udef_items.hpp"
-#include "udef_encoder.hpp"
-#include "udef_danger_act_p.hpp"
+#include "SCEF/scef_items.hpp"
+#include "scef_encoder.hpp"
+#include "scef_danger_act_p.hpp"
 
-namespace udef::format::V1
+namespace scef::format::V1
 {
 
 
@@ -2220,7 +2220,7 @@ static inline bool WriteNameOpional(WriterFlow& p_flow, std::u32string_view p_na
 	return true;
 }
 
-static inline bool WriteSpacing(WriterFlow& p_flow, const udef::_p::lineSpace& p_spacing)
+static inline bool WriteSpacing(WriterFlow& p_flow, const _p::lineSpace& p_spacing)
 {
 	if(!p_spacing.spacing().empty())
 	{
@@ -2914,4 +2914,4 @@ void save(root& p_root, stream_encoder& p_encoder, Flag p_flags, uint16_t /*p_re
 	}
 }
 
-}	//namespace udef::format::V1
+}	//namespace scef::format::V1

@@ -25,9 +25,9 @@
 ///		SOFTWARE.
 //======== ======== ======== ======== ======== ======== ======== ========
 
-#include "UDEF/udef_stream.hpp"
+#include "SCEF/scef_stream.hpp"
 
-namespace udef
+namespace scef
 {
 
 //======== ======== class: std_istream ======== ========
@@ -112,4 +112,4 @@ void buffer_istream::set_pos(uint64_t p_pos)
 	}
 }
 
-}	// namespace udef
+}	// namespace scef

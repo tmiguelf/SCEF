@@ -3,9 +3,24 @@ version: '{build}-{branch}'
 os: Visual Studio 2019 Preview
 
 install:
-    git submodule update --init --depth 1
+    - wsl sudo sed --in-place 's/focal/groovy/g' /etc/apt/sources.list
+    - wsl sudo apt update
+    - wsl sudo apt install -y g++
+    - git submodule update --init --depth 1
 
 build: off
 
 build_script:
-    msbuild /t:Build /p:Configuration=Release "./UDEF.sln" -maxcpucount
+    - msbuild /t:Build /p:Configuration=Release "./SCEF.sln" -maxcpucount
+    - msbuild /t:Build /p:Configuration=WSL_Release "./SCEF.sln" -maxcpucount
+
+test_script:
+    - '&"./Runtime/win_x64_Release/CoreLib_Test.exe" --gtest_output="xml:Corelib_result.xml"'
+    - wsl /mnt/c/projects/utilities/Runtime/lin_x86_64_Release/CoreLib_Test.out --gtest_output="xml:Corelib_result_linux.xml"
+
+artifacts:
+  - path: Corelib_result.xml
+    name: test_results
+  - path: MathLib_result.xml
+    name: test_results
+

@@ -52,25 +52,25 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\UDEF.cpp" />
-    <ClCompile Include="src\udef_encoder.cpp" />
-    <ClCompile Include="src\udef_format.cpp" />
-    <ClCompile Include="src\udef_format_v1.cpp" />
-    <ClCompile Include="src\udef_items.cpp" />
-    <ClCompile Include="src\udef_stream.cpp" />
+    <ClCompile Include="src\SCEF.cpp" />
+    <ClCompile Include="src\scef_encoder.cpp" />
+    <ClCompile Include="src\scef_format.cpp" />
+    <ClCompile Include="src\scef_format_v1.cpp" />
+    <ClCompile Include="src\scef_items.cpp" />
+    <ClCompile Include="src\scef_stream.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\UDEF\UDEF.hpp" />
-    <ClInclude Include="include\UDEF\udef_items.hpp" />
-    <ClInclude Include="include\UDEF\udef_stream.hpp" />
-    <ClInclude Include="src\udef_danger_act_p.hpp" />
-    <ClInclude Include="src\udef_encoder.hpp" />
-    <ClInclude Include="src\udef_format.hpp" />
-    <ClInclude Include="src\udef_format_v1.hpp" />
+    <ClInclude Include="include\SCEF\SCEF.hpp" />
+    <ClInclude Include="include\SCEF\scef_items.hpp" />
+    <ClInclude Include="include\SCEF\scef_stream.hpp" />
+    <ClInclude Include="src\scef_danger_act_p.hpp" />
+    <ClInclude Include="src\scef_encoder.hpp" />
+    <ClInclude Include="src\scef_format.hpp" />
+    <ClInclude Include="src\scef_format_v1.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="UDEF.import.props" />
-    <None Include="UDEF.include.props" />
+    <None Include="SCEF.import.props" />
+    <None Include="SCEF.include.props" />
   </ItemGroup>
   <Import Project="$(quickMSBuildPath)default.cpp.targets" />
 </Project>

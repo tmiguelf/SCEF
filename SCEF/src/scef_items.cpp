@@ -25,10 +25,10 @@
 ///		SOFTWARE.
 //======== ======== ======== ======== ======== ======== ======== ========
 
-#include "UDEF/udef_items.hpp"
+#include "SCEF/scef_items.hpp"
 
 
-namespace udef
+namespace scef
 {
 namespace _p
 {
@@ -276,4 +276,4 @@ itemProxy<const keyedValue> ItemList::find_key_by_name(std::u32string_view p_nam
 	return {};
 }
 
-} //namespace udef
+} //namespace scef

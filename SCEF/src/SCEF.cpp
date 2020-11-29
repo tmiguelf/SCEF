@@ -25,19 +25,19 @@
 ///		SOFTWARE.
 //======== ======== ======== ======== ======== ======== ======== ========
 
-#include "UDEF/UDEF.hpp"
+#include "SCEF/SCEF.hpp"
 
 #include <memory>
 #include <fstream>
 
 #include <CoreLib/Core_Endian.hpp>
 
-#include "udef_encoder.hpp"
-#include "udef_format.hpp"
-#include "udef_format_v1.hpp"
-#include "udef_danger_act_p.hpp"
+#include "scef_encoder.hpp"
+#include "scef_format.hpp"
+#include "scef_format_v1.hpp"
+#include "scef_danger_act_p.hpp"
 
-namespace udef
+namespace scef
 {
 
 warningBehaviour DefaultWarningHandler(const Error_Context&, void*)
@@ -82,13 +82,13 @@ void _Error_Context::SetErrorPrematureEnding(char32_t p_expected)
 
 void document::clear()
 {
-	m_document_properties.version	= __UDEF_NO_VERSION;
+	m_document_properties.version	= __SCEF_NO_VERSION;
 	m_document_properties.encoding	= Encoding::Unspecified;
 	m_last_error.clear();
 	m_rootObject.clear();
 }
 
-udef::Error document::load(const std::filesystem::path& p_file, Flag p_flags, _warning_callback p_warning_callback, void* p_user_context)
+Error document::load(const std::filesystem::path& p_file, Flag p_flags, _warning_callback p_warning_callback, void* p_user_context)
 {
 	std::ifstream f_reader;
 	f_reader.open(p_file, std::ios_base::in | std::ios_base::binary);
@@ -101,7 +101,7 @@ udef::Error document::load(const std::filesystem::path& p_file, Flag p_flags, _w
 	_p::Danger_Action::publicError(m_last_error).SetPlainError(Error::FileNotFound);
 
 	m_document_properties.encoding	= Encoding::Unspecified;
-	m_document_properties.version	= __UDEF_NO_VERSION;
+	m_document_properties.version	= __SCEF_NO_VERSION;
 	m_rootObject.clear();
 
 	return m_last_error.error_code();
@@ -137,7 +137,7 @@ Error document::load(base_istreamer& p_stream, Flag p_flags, _warning_callback p
 
 	if(p_warning_callback == nullptr) p_warning_callback = DefaultWarningHandler;
 
-	udef::format::_Warning_Def		t_warn;
+	format::_Warning_Def		t_warn;
 	t_warn._error_context			= &m_last_error;
 	t_warn._user_context			= p_user_context;
 	t_warn._user_warning_callback	= p_warning_callback;
@@ -312,7 +312,7 @@ backup_ANSI:
 		Error t_lasErr = format::FinishVersionDecoding(*t_decoder, t_version, m_last_error);
 		if(t_lasErr != Error::None)
 		{
-			if(t_lasErr != Error::Control_NoHeader || (p_flags & Flag::ForceHeader) == Flag{}) //No header found in UDEF file
+			if(t_lasErr != Error::Control_NoHeader || (p_flags & Flag::ForceHeader) == Flag{}) //No header found in SCEF file
 			{
 				_p::Danger_Action::publicError(m_last_error).SetPlainError(t_lasErr);
 				return t_lasErr;
@@ -334,7 +334,7 @@ backup_ANSI:
 		else
 		{
 			//in case version = 0, i.e. no header, tries to deformat with most recent API version
-			if(t_version == __UDEF_NO_VERSION) t_version = __UDEF_API_VERSION;
+			if(t_version == __SCEF_NO_VERSION) t_version = __SCEF_API_VERSION;
 		}
 		m_document_properties.version = t_version;
 
@@ -362,9 +362,9 @@ backup_ANSI:
 Error document::save(base_ostreamer& p_stream, Flag p_flags, uint16_t p_version, Encoding p_encoding)
 {
 	m_last_error.clear();
-	if(p_version == __UDEF_NO_VERSION)
+	if(p_version == __SCEF_NO_VERSION)
 	{
-		p_version = __UDEF_API_VERSION;
+		p_version = __SCEF_API_VERSION;
 	}
 	else
 	{
@@ -488,4 +488,4 @@ Error document::save(base_ostreamer& p_stream, Flag p_flags, uint16_t p_version,
 	return m_last_error.error_code();
 }
 
-}	// namespace udef
+}	// namespace scef

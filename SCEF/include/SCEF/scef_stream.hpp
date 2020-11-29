@@ -31,7 +31,7 @@
 #include <istream>
 #include <ostream>
 
-namespace udef
+namespace scef
 {
 
 enum class stream_error: uint8_t
@@ -123,4 +123,4 @@ public:
 	void set_pos(uint64_t pos) override;
 };	//class buffer_istream
 
-}	// namespace udef
+}	// namespace scef

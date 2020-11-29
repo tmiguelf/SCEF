@@ -25,14 +25,14 @@
 ///		SOFTWARE.
 //======== ======== ======== ======== ======== ======== ======== ========
 
-#include "udef_encoder.hpp"
+#include "scef_encoder.hpp"
 
 #include <span>
 
 #include <CoreLib/Core_Endian.hpp>
 #include <CoreLib/string/core_string_encoding.hpp>
 
-namespace udef
+namespace scef
 {
 
 //======== ======== class: Stream_Decoder ======== ========
@@ -713,4 +713,4 @@ stream_error Stream_UCS4BE_Encoder_s::put(std::u8string_view p_string)
 }
 
 }	// namespace ENCODER_P
-}	// namespace udef
+}	// namespace scef

@@ -39,16 +39,16 @@
 #include <vector>
 
 //---- Other ----
-#include "udef_stream.hpp"
-#include "udef_items.hpp"
+#include "scef_stream.hpp"
+#include "scef_items.hpp"
 
 ///	\n
 //
-namespace udef
+namespace scef
 {
 
-constexpr uint16_t __UDEF_API_VERSION	= 1;	//!< Latest supported version of the API
-constexpr uint16_t __UDEF_NO_VERSION	= 0;	//!< Defaults to __UDEF_API_VERSION on save, == Error on load
+constexpr uint16_t __SCEF_API_VERSION	= 1;	//!< Latest supported version of the API
+constexpr uint16_t __SCEF_NO_VERSION	= 0;	//!< Defaults to __SCEF_API_VERSION on save, == Error on load
 
 constexpr uint64_t noline = 0;		//!< Used to indicate an error context that is not tied to a line in the document
 
@@ -85,7 +85,7 @@ enum class Flag: uint8_t
 	//DisableEncodeEscaping	= 0x40,
 
 	//only works for loading
-	ForceHeader		= 0x80, //!< Only accepts file if udef header exists
+	ForceHeader		= 0x80, //!< Only accepts file if scef header exists
 };
 
 CORE_MAKE_ENUM_FLAG(Flag);
@@ -101,7 +101,7 @@ enum class Error: uint8_t
 
 	InvalidChar			= 0x06,	//!< Unexpected chararcter found within the document format, if reported with \ref Error_Context, then \ref Error_Context::extra.invalid_char is used
 	BadEscape			= 0x07,	//!< Invalid escape sequence found within the document, if reported with \ref Error_Context, then \ref Error_Context::extra.invalid_escape is used
-	UnsuportedVersion	= 0x08,	//!< The specified udef specification version is not suported. \warning \ref Error_Context::extra.format is not used
+	UnsuportedVersion	= 0x08,	//!< The specified scef specification version is not suported. \warning \ref Error_Context::extra.format is not used
 	BadFormat			= 0x09,	//!< An unresolvable error was dtected while trying to interpret the format
 	UnknownObject		= 0x0A,	//!< The item type is a custom type. Type is unsuported. Users should not define their own data types.
 	PrematureEnd		= 0x0B,	//!< Parser unexpectedly reached end of stream where such was not expected, file maybe truncated
@@ -138,21 +138,21 @@ namespace _p
 		{
 			struct
 			{
-				uint16_t	version;		//!< Document version. Used when \ref error_Code = \ref udef::Warning_VersionDetected
-				Encoding	encoding;		//!< Document encoding. Used when \ref error_Code = \ref udef::Warning_EncodingDetected
+				uint16_t	version;		//!< Document version. Used when \ref error_Code = \ref scef::Warning_VersionDetected
+				Encoding	encoding;		//!< Document encoding. Used when \ref error_Code = \ref scef::Warning_EncodingDetected
 			} format;
 
 			struct
 			{
 				char32_t	found;			//!< Character that was found
 				char32_t	expected;		//!< Character that was expected to find (sugestive).
-			} invalid_char;					//!< Invalid character context information. Used when \ref error_Code = \ref udef::error_InvalidChar
+			} invalid_char;					//!< Invalid character context information. Used when \ref error_Code = \ref scef::error_InvalidChar
 
 			struct
 			{
 				const char32_t*	sequence;	//!< Characters in the escape sequence.
 				uintptr_t		lengh;	//!< Number of characters in \ref sequence
-			} invalid_escape;				//!< Invalid escape sequence context information. Used when \ref error_Code = \ref udef::error_BadEscape
+			} invalid_escape;				//!< Invalid escape sequence context information. Used when \ref error_Code = \ref scef::error_BadEscape
 
 			struct
 			{
@@ -173,8 +173,8 @@ namespace _p
 			m_column	= p_column;
 		}
 
-		inline const udef::item* cirtical_item() const { return m_criticalItem; }
-		inline const std::vector<const udef::item*>& item_stack() { return m_stack; }
+		inline const scef::item* cirtical_item() const { return m_criticalItem; }
+		inline const std::vector<const scef::item*>& item_stack() { return m_stack; }
 
 
 		void SetErrorInvalidChar	(char32_t p_found, char32_t p_expected);
@@ -182,14 +182,14 @@ namespace _p
 		void SetErrorPrematureEnding(char32_t p_expected);
 		inline void SetPlainError	(Error p_code) { m_error_code = p_code; }
 
-		Error m_error_code = Error::None;	//!< Error code of type \ref udef::error
-		uint64_t m_line = 0;				//!< Line number where the error ocured, or \ref udef::noline if the error is not associated to a line in the document
+		Error m_error_code = Error::None;	//!< Error code of type \ref scef::error
+		uint64_t m_line = 0;				//!< Line number where the error ocured, or \ref scef::noline if the error is not associated to a line in the document
 		uint64_t m_column = 0;				//!< Column where the error ocured, count starts from 0
 		ExtraInfo_t m_extra;
 
 
-		std::vector<const udef::item*> m_stack;
-		const udef::item* m_criticalItem = nullptr;		//!< Last item being constructed when the error ocured
+		std::vector<const scef::item*> m_stack;
+		const scef::item* m_criticalItem = nullptr;		//!< Last item being constructed when the error ocured
 	};
 
 
@@ -216,7 +216,7 @@ public:
 //
 warningBehaviour DefaultWarningHandler(const Error_Context&, void*);
 
-using _warning_callback = warningBehaviour (*)(const udef::Error_Context&, void*);
+using _warning_callback = warningBehaviour (*)(const Error_Context&, void*);
 
 
 class document;
@@ -225,7 +225,7 @@ class document;
 ///		Functional item representing the data content (or root node) of the document
 class root final: public ItemList
 {
-	friend class ::udef::document;
+	friend class document;
 private:
 	root() = default;
 };
@@ -235,7 +235,7 @@ class document
 public:
 	struct doc_prop
 	{
-		uint16_t version = __UDEF_NO_VERSION;	//!< UDEF specification version
+		uint16_t version = __SCEF_NO_VERSION;		//!< SCEF specification version
 		Encoding encoding = Encoding::Unspecified;	//!< Document encoding
 	};
 
@@ -249,25 +249,25 @@ public:
 	[[nodiscard]] inline		Error_Context& last_error()			{ return m_last_error; }
 	[[nodiscard]] inline const	Error_Context& last_error() const	{ return m_last_error; }
 
-	[[nodiscard]] inline		::udef::root& root()		{ return m_rootObject; }
-	[[nodiscard]] inline const	::udef::root& root() const	{ return m_rootObject; }
+	[[nodiscard]] inline		::scef::root& root()		{ return m_rootObject; }
+	[[nodiscard]] inline const	::scef::root& root() const	{ return m_rootObject; }
 
 	void clear();
 
 	Error load(const std::filesystem::path& p_file, Flag p_flags, _warning_callback p_warning_callback = nullptr, void* p_user_context = nullptr);
-	Error save(const std::filesystem::path& p_file, Flag p_flags, uint16_t p_version = __UDEF_NO_VERSION, Encoding p_encoding = Encoding::Unspecified);
+	Error save(const std::filesystem::path& p_file, Flag p_flags, uint16_t p_version = __SCEF_NO_VERSION, Encoding p_encoding = Encoding::Unspecified);
 
 	Error load(base_istreamer& p_stream, Flag p_flags, _warning_callback p_warning_callback = nullptr, void* p_user_context = nullptr);
-	Error save(base_ostreamer& p_stream, Flag p_flags, uint16_t p_version = __UDEF_NO_VERSION, Encoding p_encoding = Encoding::Unspecified);
+	Error save(base_ostreamer& p_stream, Flag p_flags, uint16_t p_version = __SCEF_NO_VERSION, Encoding p_encoding = Encoding::Unspecified);
 
-	static constexpr bool  read_supports_version(uint16_t p_version) { return p_version <= __UDEF_API_VERSION; }
-	static constexpr bool write_supports_version(uint16_t p_version) { return p_version <= __UDEF_API_VERSION; }
+	static constexpr bool  read_supports_version(uint16_t p_version) { return p_version <= __SCEF_API_VERSION; }
+	static constexpr bool write_supports_version(uint16_t p_version) { return p_version <= __SCEF_API_VERSION; }
 
 private:
 	doc_prop		m_document_properties;	//!< Document information, automatically filled when loading
 	Error_Context	m_last_error;			//!< last error
-	::udef::root	m_rootObject;			//!< Root node of document. Contains all items in teh document
+	scef::root		m_rootObject;			//!< Root node of document. Contains all items in teh document
 };
 
 
-}	//namespace udef
+}	//namespace scef

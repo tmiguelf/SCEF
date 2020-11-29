@@ -25,19 +25,19 @@
 ///		SOFTWARE.
 //======== ======== ======== ======== ======== ======== ======== ========
 
-#include "udef_format.hpp"
+#include "scef_format.hpp"
 
 #include <cstdint>
 #include <CoreLib/Core_String.hpp>
 
-#include "udef_encoder.hpp"
-#include "udef_danger_act_p.hpp"
+#include "scef_encoder.hpp"
+#include "scef_danger_act_p.hpp"
 
 
-namespace udef::format
+namespace scef::format
 {
 
-namespace 
+namespace
 {
 	static bool startWarp(char32_t p_char, void*)
 	{
@@ -63,7 +63,7 @@ namespace
 		switch(context.m_count)
 		{
 			case 0:
-				if(p_char != 'D' && p_char != 'd')
+				if(p_char != 'C' && p_char != 'c')
 				{
 					return false;
 				}
@@ -104,11 +104,11 @@ namespace
 
 } //namespace
 
-//======== ======== byte_t FinishVersionDecoding(UDEF_Decoder&, uint16_t*, size_t*, char32_t) ======== ========
+
 Error FinishVersionDecoding(stream_decoder& p_decoder, uint16_t& p_version, Error_Context& p_err)
 {
 	//find first "!"
-	// ! udef : v = 12345
+	// ! scef : v = 12345
 	// ^
 	stream_error ret = p_decoder.read_while(startWarp, nullptr);
 	if(ret != stream_error::None)
@@ -123,15 +123,15 @@ Error FinishVersionDecoding(stream_decoder& p_decoder, uint16_t& p_version, Erro
 
 	_p::Danger_Action::publicError(p_err).set_position(p_decoder.line(), 0);
 
-	// ! udef : v = 12345
+	// ! scef : v = 12345
 	//   ^
 	ret = p_decoder.read_while(spaceWarp, nullptr);
 	if(ret != stream_error::None)
 	{
 		return Error::BadFormat;
 	}
-	//the next 4 characters better spell UDEF
-	if((p_decoder.lastChar() != 'U' && p_decoder.lastChar() != 'u'))
+	//the next 4 characters better spell SCEF
+	if((p_decoder.lastChar() != 'S' && p_decoder.lastChar() != 's'))
 	{
 		return Error::BadFormat;
 	}
@@ -146,7 +146,7 @@ Error FinishVersionDecoding(stream_decoder& p_decoder, uint16_t& p_version, Erro
 		}
 	}
 
-	// ! udef : v = 12345
+	// ! scef : v = 12345
 	//        ^
 	ret = p_decoder.read_while(spaceWarp, nullptr);
 	if(ret != stream_error::None || p_decoder.lastChar() != ':')
@@ -154,7 +154,7 @@ Error FinishVersionDecoding(stream_decoder& p_decoder, uint16_t& p_version, Erro
 		return Error::BadFormat;
 	}
 
-	// ! udef : v = 12345
+	// ! scef : v = 12345
 	//          ^
 	ret = p_decoder.read_while(spaceWarp, nullptr);
 	if(ret != stream_error::None || (p_decoder.lastChar() != 'V' && p_decoder.lastChar() != 'v'))
@@ -163,7 +163,7 @@ Error FinishVersionDecoding(stream_decoder& p_decoder, uint16_t& p_version, Erro
 	}
 
 
-	// ! udef : v = 12345
+	// ! scef : v = 12345
 	//            ^
 	ret = p_decoder.read_while(spaceWarp, nullptr);
 	if(ret != stream_error::None || p_decoder.lastChar() != '=')
@@ -172,7 +172,7 @@ Error FinishVersionDecoding(stream_decoder& p_decoder, uint16_t& p_version, Erro
 	}
 
 
-	// ! udef : v = 12345
+	// ! scef : v = 12345
 	//              ^
 	ret = p_decoder.read_while(spaceWarp, nullptr);
 	if(ret != stream_error::None)
@@ -211,7 +211,7 @@ Error FinishVersionDecoding(stream_decoder& p_decoder, uint16_t& p_version, Erro
 		p_version = num_res.value();
 	}
 
-	// ! udef : v = 12345 
+	// ! scef : v = 12345 
 	//                    ^
 	if(p_decoder.lastChar() != '\n')
 	{
@@ -224,13 +224,13 @@ Error FinishVersionDecoding(stream_decoder& p_decoder, uint16_t& p_version, Erro
 
 	return Error::None;
 }
-//======== ======== byte_t FinishVersionDecoding(UDEF_Decoder&, uint16_t*, size_t*, char32_t) END ======== ========
 
-constexpr std::u8string_view UDEF_SIG = u8"!UDEF:V=";
+
+constexpr std::u8string_view SCEF_SIG = u8"!SCEF:V=";
 
 Error WriteVersion(stream_encoder& p_encoder, uint16_t p_version)
 {
-	stream_error ret = p_encoder.put(UDEF_SIG);
+	stream_error ret = p_encoder.put(SCEF_SIG);
 
 	if(ret != stream_error::None)
 	{
@@ -248,4 +248,4 @@ Error WriteVersion(stream_encoder& p_encoder, uint16_t p_version)
 	return static_cast<Error>(p_encoder.put(U'\n'));
 }
 
-}	//namespace udef::format
+}	//namespace acef::format

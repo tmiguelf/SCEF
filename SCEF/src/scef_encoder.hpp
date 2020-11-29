@@ -32,9 +32,9 @@
 
 #include <CoreLib/Core_Alternate.hpp>
 
-#include "UDEF/udef_stream.hpp"
+#include "SCEF/scef_stream.hpp"
 
-namespace udef
+namespace scef
 {
 
 // Used to interpret character encoding
@@ -267,4 +267,4 @@ public:
 };
 
 }	// namespace ENCODER_P
-}	// namespace udef
+}	// namespace scef

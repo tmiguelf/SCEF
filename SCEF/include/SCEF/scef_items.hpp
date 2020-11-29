@@ -38,7 +38,7 @@
 #include <CoreLib/string/core_string_numeric.hpp>
 #include <CoreLib/Core_Type.hpp>
 
-namespace udef
+namespace scef
 {
 
 //======== ======== ======== Type Handling ======== ======== ========
@@ -83,22 +83,22 @@ enum class QuotationMode: uint8_t
 
 namespace _p
 {
-template <typename T> struct valid_udef_proxy	{ static constexpr bool value = false; };
-template <> struct valid_udef_proxy<item>		{ static constexpr bool value = true; };
-template <> struct valid_udef_proxy<group>		{ static constexpr bool value = true; };
-template <> struct valid_udef_proxy<value>		{ static constexpr bool value = true; };
-template <> struct valid_udef_proxy<keyedValue>	{ static constexpr bool value = true; };
-template <> struct valid_udef_proxy<spacer>		{ static constexpr bool value = true; };
-template <> struct valid_udef_proxy<comment>	{ static constexpr bool value = true; };
+template <typename T> struct valid_scef_proxy	{ static constexpr bool value = false; };
+template <> struct valid_scef_proxy<item>		{ static constexpr bool value = true; };
+template <> struct valid_scef_proxy<group>		{ static constexpr bool value = true; };
+template <> struct valid_scef_proxy<value>		{ static constexpr bool value = true; };
+template <> struct valid_scef_proxy<keyedValue>	{ static constexpr bool value = true; };
+template <> struct valid_scef_proxy<spacer>		{ static constexpr bool value = true; };
+template <> struct valid_scef_proxy<comment>	{ static constexpr bool value = true; };
 
 template<typename T>
-constexpr bool is_valid_udef_proxy_v = valid_udef_proxy<std::remove_const_t<T>>::value;
+constexpr bool is_valid_scef_proxy_v = valid_scef_proxy<std::remove_const_t<T>>::value;
 } //namespace _p
 
 /// \brief handles ownership model for items in lists
 /// \tparam T - Item type
 template<typename T>
-using itemProxy = std::shared_ptr<std::enable_if_t<_p::is_valid_udef_proxy_v<T>, T>>;
+using itemProxy = std::shared_ptr<std::enable_if_t<_p::is_valid_scef_proxy_v<T>, T>>;
 
 
 //======== ======== ======== List Handling ======== ======== ========
@@ -123,9 +123,9 @@ class _t_list_const_iterator;
 class _t_list_iterator
 {
 	friend class _t_list_const_iterator;
-	friend class ::udef::ItemList;
-	friend class ::udef::TypeListProxy;
-	friend class ::udef::constTypeListProxy;
+	friend class ::scef::ItemList;
+	friend class ::scef::TypeListProxy;
+	friend class ::scef::constTypeListProxy;
 private:
 	_list_iterator	_node;
 	_list_iterator	_end;
@@ -167,9 +167,9 @@ public:
 class _t_list_const_iterator
 {
 	friend class _t_list_iterator;
-	friend class ::udef::ItemList;
-	friend class ::udef::TypeListProxy;
-	friend class ::udef::constTypeListProxy;
+	friend class ::scef::ItemList;
+	friend class ::scef::TypeListProxy;
+	friend class ::scef::constTypeListProxy;
 
 private:
 	_list_const_iterator	_node;
@@ -218,8 +218,8 @@ using const_type_iterator	= _p::_t_list_const_iterator;
 class constTypeListProxy
 {
 public:
-	using iterator			= udef::type_iterator;
-	using const_iterator	= udef::const_type_iterator;
+	using iterator			= scef::type_iterator;
+	using const_iterator	= scef::const_type_iterator;
 	friend class ItemList;
 protected:
 	constTypeListProxy(const ItemList& p_list, ItemType p_type);
@@ -239,8 +239,8 @@ private:
 class TypeListProxy
 {
 public:
-	using iterator			= udef::type_iterator;
-	using const_iterator	= udef::const_type_iterator;
+	using iterator			= scef::type_iterator;
+	using const_iterator	= scef::const_type_iterator;
 	friend class ItemList;
 protected:
 	TypeListProxy(ItemList& p_list, ItemType p_type);
@@ -260,12 +260,12 @@ private:
 };
 
 ///	\brief
-///		Generic list capable of containing UDEF items
+///		Generic list capable of containing SCEF items
 class ItemList: public _p::_p_item_list
 {
 public:
-	using type_iterator			= udef::type_iterator;
-	using const_type_iterator	= udef::const_type_iterator;
+	using type_iterator			= scef::type_iterator;
+	using const_type_iterator	= scef::const_type_iterator;
 
 	[[nodiscard]] TypeListProxy proxyList(ItemType p_type);
 	[[nodiscard]] const constTypeListProxy proxyList(ItemType p_type) const;
@@ -304,7 +304,7 @@ inline constexpr bool is_space_noLF(char32_t p_val)
 	return p_val != '\n' && is_space(p_val);
 }
 
-/// \brief Wraps the property of an UDEF item having a name
+/// \brief Wraps the property of an SCEF item having a name
 class NamedItem
 {
 protected:
@@ -326,7 +326,7 @@ public:
 	[[nodiscard]] std::u8string name_UTF8() const;
 };
 
-/// \brief Wraps the property of an UDEF item having an inline spacing
+/// \brief Wraps the property of an SCEF item having an inline spacing
 class lineSpace
 {
 	friend Danger_Action;
@@ -340,7 +340,7 @@ public:
 	void clear			();
 };
 
-/// \brief Wraps the property of an UDEF item having a multiline spacing
+/// \brief Wraps the property of an SCEF item having a multiline spacing
 class multiLineSpace
 {
 	friend Danger_Action;
@@ -361,7 +361,7 @@ public:
 
 //======== ======== ======== Items ======== ======== ========
 
-/// \brief Abstract class representing an UDEF entity
+/// \brief Abstract class representing an SCEF entity
 class item
 {
 protected:
@@ -388,7 +388,7 @@ private:
 };
 
 ///	\brief
-///		UDEF entity designed to contain spacing information, such hat sapcing information can be saved when loading then saving a document
+///		SCEF entity designed to contain spacing information, such hat sapcing information can be saved when loading then saving a document
 ///
 ///	\note
 ///		On saving:
@@ -411,7 +411,7 @@ public:
 
 
 ///	\brief
-///		UDEF entity designed to contain comments in the document
+///		SCEF entity designed to contain comments in the document
 ///
 /// \note
 ///		1. New line after comment is implicit
@@ -436,7 +436,7 @@ public:
 	void clear	();
 };
 
-///	\brief UDEF entity that can contain child items
+///	\brief SCEF entity that can contain child items
 class group final: public item, public _p::NamedItem, public ItemList
 {
 private:
@@ -450,7 +450,7 @@ public:
 	_p::lineSpace m_postSpace;
 };
 
-/// \brief UDEF entity that contains a lonely value
+/// \brief SCEF entity that contains a lonely value
 class value: public item, public _p::NamedItem
 {
 private:
@@ -465,7 +465,7 @@ public:
 
 
 ///	\brief
-///		UDEF entity that contains a key and a value
+///		SCEF entity that contains a key and a value
 ///
 ///	\note
 ///		1. Semi-colon at the end current item is implicit
@@ -643,4 +643,4 @@ inline void				keyedValue::set_column_value		(uint64_t p_column)		{ m_valueColum
 inline group::group(): item(static_type()), NamedItem() {}
 inline itemProxy<group> group::make() { return itemProxy<group>{new group()}; }
 
-} //namespace udef
+} //namespace scef

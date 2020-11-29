@@ -27,10 +27,10 @@
 
 #pragma once
 
-#include "udef_format.hpp"
+#include "scef_format.hpp"
 
-namespace udef::format::v1
+namespace scef::format::v1
 {
 void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, uint16_t p_detected_version, _Warning_Def& p_warn);
 void save(root& p_root, stream_encoder& p_encoder, Flag p_flags, uint16_t p_requested_version, _Warning_Def& p_warn);
-}	//namespace udef::format::v1
+}	//namespace scef::format::v1
