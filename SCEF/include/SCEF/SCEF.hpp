@@ -269,5 +269,4 @@ private:
 	scef::root		m_rootObject;			//!< Root node of document. Contains all items in teh document
 };
 
-
 }	//namespace scef

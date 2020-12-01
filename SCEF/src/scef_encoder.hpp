@@ -58,7 +58,7 @@ private:
 
 public:
 	inline stream_decoder(base_istreamer& p_reader): m_reader{p_reader} {}
-	virtual ~stream_decoder() = 0;
+	virtual ~stream_decoder();
 
 	[[nodiscard]] stream_error read_while(read_f p_user_cb, void* p_context);
 	[[nodiscard]] result_t get_char();
@@ -87,7 +87,7 @@ protected:
 
 public:
 	inline stream_encoder(base_ostreamer& p_writer): m_writer{p_writer}{}
-	virtual ~stream_encoder() = 0;
+	virtual ~stream_encoder();
 
 	virtual stream_error put(char32_t p_char) = 0;
 	virtual stream_error put(std::u32string_view p_string) = 0;

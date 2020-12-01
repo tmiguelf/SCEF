@@ -35,6 +35,8 @@
 namespace scef
 {
 
+stream_decoder::~stream_decoder() = default;
+
 //======== ======== class: Stream_Decoder ======== ========
 stream_error stream_decoder::read_while(read_f p_user_cb, void* p_context)
 {
@@ -64,6 +66,8 @@ stream_decoder::result_t stream_decoder::get_char()
 	return res;
 }
 
+
+stream_encoder::~stream_encoder() = default;
 
 namespace ENCODER_P
 {

@@ -276,4 +276,8 @@ itemProxy<const keyedValue> ItemList::find_key_by_name(std::u32string_view p_nam
 	return {};
 }
 
+
+
+item::~item() = default;
+
 } //namespace scef

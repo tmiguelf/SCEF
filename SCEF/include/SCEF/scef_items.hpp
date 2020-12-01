@@ -368,7 +368,7 @@ protected:
 	item(ItemType p_type);
 
 public:
-	virtual ~item() = 0;
+	virtual ~item();
 
 	[[nodiscard]] ItemType	type	() const;
 	[[nodiscard]] uint64_t	line	() const;
@@ -621,6 +621,7 @@ inline void						comment::set	(std::u32string_view p_text)	{ _text = p_text; }
 inline void						comment::clear	()								{ _text.clear(); }
 
 //======== ======== class value
+inline value::value(): item(static_type()), NamedItem() {}
 inline itemProxy<value> value::make() { return itemProxy<value>{new value()}; }
 
 //======== ======== class keyedValue

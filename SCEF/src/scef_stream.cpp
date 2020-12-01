@@ -30,6 +30,11 @@
 namespace scef
 {
 
+base_istreamer::~base_istreamer() = default;
+
+base_ostreamer::~base_ostreamer() = default;
+
+
 //======== ======== class: std_istream ======== ========
 std_istream::std_istream(std::basic_istream<char>& p_streamer): _istream(p_streamer)
 {

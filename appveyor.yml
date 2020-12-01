@@ -11,16 +11,17 @@ install:
 build: off
 
 build_script:
+    - copy ./SCEF/test/samples/sampleFile1.scef sampleFile1.scef
     - msbuild /t:Build /p:Configuration=Release "./SCEF.sln" -maxcpucount
     - msbuild /t:Build /p:Configuration=WSL_Release "./SCEF.sln" -maxcpucount
 
 test_script:
-    - '&"./Runtime/win_x64_Release/CoreLib_Test.exe" --gtest_output="xml:Corelib_result.xml"'
-    - wsl /mnt/c/projects/utilities/Runtime/lin_x86_64_Release/CoreLib_Test.out --gtest_output="xml:Corelib_result_linux.xml"
+    - '&"./Runtime/win_x64_Release/SCEF_test.exe" --gtest_output="xml:SCEF_result.xml"'
+    - wsl /mnt/c/projects/utilities/Runtime/lin_x86_64_Release/SCEF_test.out --gtest_output="xml:SCEF_result_linux.xml"
 
 artifacts:
-  - path: Corelib_result.xml
+  - path: SCEF_result.xml
     name: test_results
-  - path: MathLib_result.xml
+  - path: SCEF_result_linux.xml
     name: test_results
 

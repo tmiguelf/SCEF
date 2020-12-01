@@ -33,7 +33,7 @@
 #include "scef_encoder.hpp"
 #include "scef_danger_act_p.hpp"
 
-namespace scef::format::V1
+namespace scef::format::v1
 {
 
 
@@ -65,13 +65,6 @@ inline static constexpr bool is_badCodePoint(char32_t p_char)
 }
 
 constexpr uint8_t MAX_LEVEL = 10;
-
-/*
-static inline bool is_control(char32_t p_val)
-{
-	return	p_val < 0x3F && ( p_val > 0x39 || p_val == '#' || p_val == ',');
-}
-*/
 
 struct ReaderFlow
 {
@@ -290,14 +283,15 @@ static bool loadEscapeOcta(char32_t p_char, void* p_context)
 	return false;
 }
 
-static Error ReadComment(ReaderFlow& p_flow, comment& p_item)
+static Error ReadComment(ReaderFlow& p_flow, comment& p_comment)
 {
+	p_comment.set_position(p_flow.m_decoder.line(), p_flow.m_decoder.column() - 1);
 	std::u32string temp;
 	stream_error ret = p_flow.m_decoder.read_while(loadUntilNewLine, &temp);
-	p_item.set(temp);
+	p_comment.set(temp);
 	if(ret != stream_error::None)
 	{
-		_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_item;
+		_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_comment;
 		return static_cast<Error>(ret);
 	}
 	if(p_flow.m_decoder.lastChar() != '\n')
@@ -327,6 +321,7 @@ static Error ReadSpaceSkip(ReaderFlow& p_flow)
 
 static Error ReadSpace(ReaderFlow& p_flow, spacer& p_spacer)
 {
+	p_spacer.set_position(p_flow.m_decoder.line(), p_flow.m_decoder.column() - 1);
 	multiline_spacing_helper data;
 	stream_error ret = p_flow.m_decoder.read_while(loadMultilineSpacing, &data);
 
@@ -506,7 +501,7 @@ static Error ReadEscapeSequence(ReaderFlow& p_flow, std::u32string& p_out)
 		case 'u':
 			{
 				escape_helper thelper;
-				stream_error ret = decoder.read_while(loadEscapeQuad, nullptr);
+				stream_error ret = decoder.read_while(loadEscapeQuad, &thelper);
 				if(thelper.count == 4)
 				{
 					p_out.push_back(reinterpret_cast<char32_t&>(core::from_hex_chars<uint32_t>({thelper.buff, 4}).value()));
@@ -547,10 +542,10 @@ static Error ReadEscapeSequence(ReaderFlow& p_flow, std::u32string& p_out)
 		case 'U':
 			{
 				escape_helper thelper;
-				stream_error ret = decoder.read_while(loadEscapeOcta, nullptr);
+				stream_error ret = decoder.read_while(loadEscapeOcta, &thelper);
 				if(thelper.count == 8)
 				{
-					p_out.push_back(reinterpret_cast<char32_t&>(core::from_hex_chars<uint32_t>({thelper.buff, 4}).value()));
+					p_out.push_back(reinterpret_cast<char32_t&>(core::from_hex_chars<uint32_t>({thelper.buff, 8}).value()));
 					break;
 				}
 				if(ret != stream_error::None)
@@ -792,6 +787,7 @@ static Error ReadName(ReaderFlow& p_flow, std::u32string& p_out, QuotationMode& 
 			lastError = ReadDoubleQuote(p_flow, p_out);
 			break;
 		default:
+			p_out.push_back(decoder.lastChar());
 			lastError = static_cast<Error>(decoder.read_while(loadNameNoQuote, &p_out));
 			break;
 	}
@@ -850,6 +846,7 @@ static Error ReadName(ReaderFlow& p_flow, std::u32string& p_out, QuotationMode& 
 				break;
 			default:
 				if(_p::is_space_noLF(tchar)) return Error::None;
+				p_out.push_back(tchar);
 				lastError = static_cast<Error>(decoder.read_while(loadNameNoQuote, &p_out));
 				break;
 		}
@@ -1010,7 +1007,7 @@ static Error ReadKeyValue(ReaderFlow& p_flow, keyedValue& p_keyValue, ItemList& 
 	Error res;
 	{
 		QuotationMode tmode;
-		p_keyValue.set_column_value(decoder.column());
+		p_keyValue.set_column_value(decoder.column() - 1);
 		res = ReadName(p_flow, p_keyValue.value(), tmode);
 		p_keyValue.set_value_quotation_mode(tmode);
 	}
@@ -1522,6 +1519,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 			}
 			[[fallthrough]];
 		case ':':
+			lastError = static_cast<Error>(decoder.get_char().error_code());
 			break;
 		case '>':
 			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
@@ -1717,7 +1715,7 @@ ReadGroup$HeaderEnd:
 							break;
 						case '>':
 							_p::Danger_Action::publicError(*twarn._error_context).m_stack.pop_back();
-							return Error::None;
+							return static_cast<Error>(decoder.get_char().error_code());
 						case '#':
 							//Start comment
 							if(p_flow.m_skipComments)
@@ -1727,7 +1725,6 @@ ReadGroup$HeaderEnd:
 							else
 							{
 								itemProxy<comment> t_item = comment::make();
-								t_item->set_position(decoder.line(), decoder.column() - 1);
 								p_group.push_back(t_item);
 								lastError = ReadComment(p_flow, *t_item);
 							}
@@ -1743,7 +1740,6 @@ ReadGroup$HeaderEnd:
 								else
 								{
 									itemProxy<spacer> t_item = spacer::make();
-									t_item->set_position(decoder.line(), decoder.column() - 1);
 									p_group.push_back(t_item);
 									lastError = ReadSpace(p_flow, *t_item);
 								}
@@ -1786,7 +1782,7 @@ ReadGroup$HeaderEnd:
 }
 
 
-void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, uint16_t /*p_detected_version*/, _Warning_Def& p_warn)
+void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, [[maybe_unused]] uint16_t p_detected_version, _Warning_Def& p_warn)
 {
 	ReaderFlow t_flow(p_decoder, p_warn);
 
@@ -1815,7 +1811,6 @@ void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, uint16_t /*p_de
 							else
 							{
 								itemProxy<comment> t_item = comment::make();
-								t_item->set_position(p_decoder.line(), p_decoder.column() - 1);
 								p_root.push_back(t_item);
 								lastError = ReadComment(t_flow, *t_item);
 							}
@@ -1923,7 +1918,6 @@ void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, uint16_t /*p_de
 								else
 								{
 									itemProxy<spacer> t_item = spacer::make();
-									t_item->set_position(p_decoder.line(), p_decoder.column() - 1);
 									p_root.push_back(t_item);
 									lastError = ReadSpace(t_flow, *t_item);
 								}
@@ -1999,8 +1993,7 @@ static void EscapeNameSingle(std::u32string_view p_name, std::u32string& p_out)
 		switch(tchar)
 		{
 			case '\t':
-				buff[1] = 't';
-				p_out.append(buff.data(), 2);
+				p_out.push_back(tchar);
 				break;
 			case '\n':
 				buff[1] = 'n';
@@ -2866,7 +2859,7 @@ static bool WriteListCompact(WriterFlow& p_flow, const ItemList& p_list, uint8_t
 	return true;
 }
 
-void save(root& p_root, stream_encoder& p_encoder, Flag p_flags, uint16_t /*p_requested_version*/, _Warning_Def& p_warn)
+void save(root& p_root, stream_encoder& p_encoder, Flag p_flags, [[maybe_unused]] uint16_t p_requested_version, _Warning_Def& p_warn)
 {
 	WriterFlow t_flow(p_encoder, p_warn);
 	t_flow.m_autoQuote = (p_flags & Flag::AutoQuote) != Flag{};
@@ -2914,4 +2907,4 @@ void save(root& p_root, stream_encoder& p_encoder, Flag p_flags, uint16_t /*p_re
 	}
 }
 
-}	//namespace scef::format::V1
+}	//namespace scef::format::v1

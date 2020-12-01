@@ -50,7 +50,7 @@ protected:
 	uint64_t _size = 0;
 
 public:
-	virtual ~base_istreamer() = 0;
+	virtual ~base_istreamer();
 
 	[[nodiscard]] virtual uintptr_t		read	(void* p_buffer, uintptr_t p_size) = 0;
 	[[nodiscard]] virtual stream_error	stat	() const = 0;
@@ -65,7 +65,7 @@ public:
 class base_ostreamer
 {
 public:
-	virtual ~base_ostreamer() = 0;
+	virtual ~base_ostreamer();
 
 	// should return error_None if write operation is successful and otherwise
 	// on failure.

@@ -1,0 +1,14 @@
+!scef:v=1
+
+<Sample:
+	value,
+	key = value;
+
+	<'Nested With Escape':
+		'Escape Key' = "Escape Value";
+		'Escape value',
+		'^n^^^23^u1234^U12345678',
+	>
+
+	#comment
+>
