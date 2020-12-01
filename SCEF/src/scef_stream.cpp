@@ -27,6 +27,8 @@
 
 #include "SCEF/scef_stream.hpp"
 
+#include <cstring>
+
 namespace scef
 {
 

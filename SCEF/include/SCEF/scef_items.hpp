@@ -154,7 +154,7 @@ public:
 
 	[[nodiscard]] bool		is_end		() const;
 	[[nodiscard]] ItemType	mask		() const;
-	[[nodiscard]] void		reSetMask	(ItemType p_mask);
+	void reSetMask(ItemType p_mask);
 
 	[[nodiscard]] _list_iterator		to_it		();
 	[[nodiscard]] _list_const_iterator	to_it		() const;
@@ -202,7 +202,7 @@ public:
 	[[nodiscard]] bool is_end() const;
 
 	[[nodiscard]] ItemType mask() const;
-	[[nodiscard]] void reSetMask(ItemType p_mask);
+	void reSetMask(ItemType p_mask);
 
 	[[nodiscard]] _list_const_iterator to_const_it() const;
 };

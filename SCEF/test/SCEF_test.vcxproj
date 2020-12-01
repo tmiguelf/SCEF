@@ -45,8 +45,8 @@
     <Import Project="$(quickMSBuildPath)default.cpp.props" />
     <Import Project="$(googletestPath)googletest.import.props" />
     <Import Project="$(googlemockPath)googlemock.import.props" />
-    <Import Project="$(CoreLibPath)CoreLib.import.props" />
     <Import Project="$(ProjectDir)../SCEF.import.props" />
+    <Import Project="$(CoreLibPath)CoreLib.import.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>

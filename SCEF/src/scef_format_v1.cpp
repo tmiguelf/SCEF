@@ -438,7 +438,7 @@ static Error ReadTrashSequence(ReaderFlow& p_flow)
 			break;
 	}
 
-	while(lastError == Error::None);
+	while(lastError == Error::None)
 	{
 		char32_t tchar = decoder.lastChar();
 		switch(tchar)
@@ -822,7 +822,7 @@ static Error ReadName(ReaderFlow& p_flow, std::u32string& p_out, QuotationMode& 
 			return Error::MergedText;
 	}
 
-	while(lastError == Error::None);
+	while(lastError == Error::None)
 	{
 		char32_t tchar = decoder.lastChar();
 		switch(tchar)
