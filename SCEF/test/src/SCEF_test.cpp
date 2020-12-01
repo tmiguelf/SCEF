@@ -16,8 +16,6 @@
 
 using namespace core::literals;
 
-/*
-
 #include <CoreLib/Core_OS.hpp>
 
 std::filesystem::path getAppPath()
@@ -25,13 +23,12 @@ std::filesystem::path getAppPath()
 	static std::filesystem::path path = core::applicationPath().parent_path();
 	return path;
 }
-*/
 
 TEST(SCEF, load_sample1)
 {
 	scef::document doc;
 
-	scef::Error ret = doc.load("sampleFile1.scef", scef::Flag::ForceHeader);
+	scef::Error ret = doc.load(getAppPath().parent_path() / "sampleFile1.scef", scef::Flag::ForceHeader);
 
 	ASSERT_EQ(ret, scef::Error::None);
 
