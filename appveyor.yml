@@ -11,7 +11,7 @@ install:
 build: off
 
 build_script:
-    - copy ./SCEF/test/samples/sampleFile1.scef sampleFile1.scef
+    - ps: copy "./SCEF/test/samples/sampleFile1.scef" "sampleFile1.scef"
     - msbuild /t:Build /p:Configuration=Release "./SCEF.sln" -maxcpucount
     - msbuild /t:Build /p:Configuration=WSL_Release "./SCEF.sln" -maxcpucount
 
