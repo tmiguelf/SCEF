@@ -1,1 +1,4 @@
-# UDEF
+# SCEF
+	Simple Configuration Exchange Format
+
+

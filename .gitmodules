@@ -6,3 +6,7 @@
 	path = submodules/utilities
 	url = ../utilities.git
 	ignore = dirty
+[submodule "submodules/googletest"]
+	path = submodules/googletest
+	url = ../googletest.git
+	ignore = dirty

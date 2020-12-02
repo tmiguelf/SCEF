@@ -1,0 +1,79 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30626.31
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SCEF", "SCEF\SCEF.vcxproj", "{E02AD9B7-192B-490C-8CAC-85726836FB18}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CoreLib", "submodules\utilities\CoreLib\CoreLib.vcxproj", "{EA04E8E6-B05B-416E-B0A3-218406672173}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SCEF_test", "SCEF\test\SCEF_test.vcxproj", "{0C991A1E-A33C-488C-9A09-D66CBA784F66}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "googletest", "submodules\googletest\googletest\googletest.vcxproj", "{0DB6A04F-669B-47B3-9689-7B1A7F4C0943}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "googlemock", "submodules\googletest\googlemock\googlemock.vcxproj", "{D093761A-08DF-4A74-A0E3-F34DB77A2118}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+		WSL_Debug|x64 = WSL_Debug|x64
+		WSL_Release|x64 = WSL_Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E02AD9B7-192B-490C-8CAC-85726836FB18}.Debug|x64.ActiveCfg = Debug|x64
+		{E02AD9B7-192B-490C-8CAC-85726836FB18}.Debug|x64.Build.0 = Debug|x64
+		{E02AD9B7-192B-490C-8CAC-85726836FB18}.Release|x64.ActiveCfg = Release|x64
+		{E02AD9B7-192B-490C-8CAC-85726836FB18}.Release|x64.Build.0 = Release|x64
+		{E02AD9B7-192B-490C-8CAC-85726836FB18}.WSL_Debug|x64.ActiveCfg = WSL_Debug|x64
+		{E02AD9B7-192B-490C-8CAC-85726836FB18}.WSL_Debug|x64.Build.0 = WSL_Debug|x64
+		{E02AD9B7-192B-490C-8CAC-85726836FB18}.WSL_Release|x64.ActiveCfg = WSL_Release|x64
+		{E02AD9B7-192B-490C-8CAC-85726836FB18}.WSL_Release|x64.Build.0 = WSL_Release|x64
+		{EA04E8E6-B05B-416E-B0A3-218406672173}.Debug|x64.ActiveCfg = Debug|x64
+		{EA04E8E6-B05B-416E-B0A3-218406672173}.Debug|x64.Build.0 = Debug|x64
+		{EA04E8E6-B05B-416E-B0A3-218406672173}.Release|x64.ActiveCfg = Release|x64
+		{EA04E8E6-B05B-416E-B0A3-218406672173}.Release|x64.Build.0 = Release|x64
+		{EA04E8E6-B05B-416E-B0A3-218406672173}.WSL_Debug|x64.ActiveCfg = WSL_Debug|x64
+		{EA04E8E6-B05B-416E-B0A3-218406672173}.WSL_Debug|x64.Build.0 = WSL_Debug|x64
+		{EA04E8E6-B05B-416E-B0A3-218406672173}.WSL_Debug|x64.Deploy.0 = WSL_Debug|x64
+		{EA04E8E6-B05B-416E-B0A3-218406672173}.WSL_Release|x64.ActiveCfg = WSL_Release|x64
+		{EA04E8E6-B05B-416E-B0A3-218406672173}.WSL_Release|x64.Build.0 = WSL_Release|x64
+		{EA04E8E6-B05B-416E-B0A3-218406672173}.WSL_Release|x64.Deploy.0 = WSL_Release|x64
+		{0C991A1E-A33C-488C-9A09-D66CBA784F66}.Debug|x64.ActiveCfg = Debug|x64
+		{0C991A1E-A33C-488C-9A09-D66CBA784F66}.Debug|x64.Build.0 = Debug|x64
+		{0C991A1E-A33C-488C-9A09-D66CBA784F66}.Release|x64.ActiveCfg = Release|x64
+		{0C991A1E-A33C-488C-9A09-D66CBA784F66}.Release|x64.Build.0 = Release|x64
+		{0C991A1E-A33C-488C-9A09-D66CBA784F66}.WSL_Debug|x64.ActiveCfg = WSL_Debug|x64
+		{0C991A1E-A33C-488C-9A09-D66CBA784F66}.WSL_Debug|x64.Build.0 = WSL_Debug|x64
+		{0C991A1E-A33C-488C-9A09-D66CBA784F66}.WSL_Debug|x64.Deploy.0 = WSL_Debug|x64
+		{0C991A1E-A33C-488C-9A09-D66CBA784F66}.WSL_Release|x64.ActiveCfg = WSL_Release|x64
+		{0C991A1E-A33C-488C-9A09-D66CBA784F66}.WSL_Release|x64.Build.0 = WSL_Release|x64
+		{0C991A1E-A33C-488C-9A09-D66CBA784F66}.WSL_Release|x64.Deploy.0 = WSL_Release|x64
+		{0DB6A04F-669B-47B3-9689-7B1A7F4C0943}.Debug|x64.ActiveCfg = Debug|x64
+		{0DB6A04F-669B-47B3-9689-7B1A7F4C0943}.Debug|x64.Build.0 = Debug|x64
+		{0DB6A04F-669B-47B3-9689-7B1A7F4C0943}.Release|x64.ActiveCfg = Release|x64
+		{0DB6A04F-669B-47B3-9689-7B1A7F4C0943}.Release|x64.Build.0 = Release|x64
+		{0DB6A04F-669B-47B3-9689-7B1A7F4C0943}.WSL_Debug|x64.ActiveCfg = WSL_Debug|x64
+		{0DB6A04F-669B-47B3-9689-7B1A7F4C0943}.WSL_Debug|x64.Build.0 = WSL_Debug|x64
+		{0DB6A04F-669B-47B3-9689-7B1A7F4C0943}.WSL_Debug|x64.Deploy.0 = WSL_Debug|x64
+		{0DB6A04F-669B-47B3-9689-7B1A7F4C0943}.WSL_Release|x64.ActiveCfg = WSL_Release|x64
+		{0DB6A04F-669B-47B3-9689-7B1A7F4C0943}.WSL_Release|x64.Build.0 = WSL_Release|x64
+		{0DB6A04F-669B-47B3-9689-7B1A7F4C0943}.WSL_Release|x64.Deploy.0 = WSL_Release|x64
+		{D093761A-08DF-4A74-A0E3-F34DB77A2118}.Debug|x64.ActiveCfg = Debug|x64
+		{D093761A-08DF-4A74-A0E3-F34DB77A2118}.Debug|x64.Build.0 = Debug|x64
+		{D093761A-08DF-4A74-A0E3-F34DB77A2118}.Release|x64.ActiveCfg = Release|x64
+		{D093761A-08DF-4A74-A0E3-F34DB77A2118}.Release|x64.Build.0 = Release|x64
+		{D093761A-08DF-4A74-A0E3-F34DB77A2118}.WSL_Debug|x64.ActiveCfg = WSL_Debug|x64
+		{D093761A-08DF-4A74-A0E3-F34DB77A2118}.WSL_Debug|x64.Build.0 = WSL_Debug|x64
+		{D093761A-08DF-4A74-A0E3-F34DB77A2118}.WSL_Debug|x64.Deploy.0 = WSL_Debug|x64
+		{D093761A-08DF-4A74-A0E3-F34DB77A2118}.WSL_Release|x64.ActiveCfg = WSL_Release|x64
+		{D093761A-08DF-4A74-A0E3-F34DB77A2118}.WSL_Release|x64.Build.0 = WSL_Release|x64
+		{D093761A-08DF-4A74-A0E3-F34DB77A2118}.WSL_Release|x64.Deploy.0 = WSL_Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B8DDCBE9-C3A7-4E56-8677-57136EB8ED88}
+	EndGlobalSection
+EndGlobal
