@@ -72,14 +72,14 @@ TEST(SCEF, load_sample1)
 		EXPECT_EQ(l1_group[7]->line(), 13_ui64);
 		EXPECT_EQ(l1_group[7]->column(), 1_ui64);
 
-		//value
-		ASSERT_EQ(l1_group[1]->type(), scef::ItemType::value);
+		//singlet
+		ASSERT_EQ(l1_group[1]->type(), scef::ItemType::singlet);
 		{
-			scef::value& tvalue = *static_cast<scef::value*>(l1_group[1].get());
-			ASSERT_EQ(tvalue.name(), U"value");
-			EXPECT_EQ(tvalue.quotation_mode(), scef::QuotationMode::standard);
-			EXPECT_EQ(tvalue.line(), 4_ui64);
-			EXPECT_EQ(tvalue.column(), 1_ui64);
+			scef::singlet& tsinglet= *static_cast<scef::singlet*>(l1_group[1].get());
+			ASSERT_EQ(tsinglet.name(), U"value");
+			EXPECT_EQ(tsinglet.quotation_mode(), scef::QuotationMode::standard);
+			EXPECT_EQ(tsinglet.line(), 4_ui64);
+			EXPECT_EQ(tsinglet.column(), 1_ui64);
 		}
 
 		//key
@@ -121,14 +121,14 @@ TEST(SCEF, load_sample1)
 			EXPECT_EQ(l2_group[6]->line(), 10_ui64);
 			EXPECT_EQ(l2_group[6]->column(), 28_ui64);
 
-			//value
-			ASSERT_EQ(l2_group[3]->type(), scef::ItemType::value);
+			//singlet
+			ASSERT_EQ(l2_group[3]->type(), scef::ItemType::singlet);
 			{
-				scef::value& tvalue = *static_cast<scef::value*>(l2_group[3].get());
-				ASSERT_EQ(tvalue.name(), U"Escape value");
-				EXPECT_EQ(tvalue.quotation_mode(), scef::QuotationMode::singlemark);
-				EXPECT_EQ(tvalue.line(), 9_ui64);
-				EXPECT_EQ(tvalue.column(), 2_ui64);
+				scef::singlet& tsinglet = *static_cast<scef::singlet*>(l2_group[3].get());
+				ASSERT_EQ(tsinglet.name(), U"Escape value");
+				EXPECT_EQ(tsinglet.quotation_mode(), scef::QuotationMode::singlemark);
+				EXPECT_EQ(tsinglet.line(), 9_ui64);
+				EXPECT_EQ(tsinglet.column(), 2_ui64);
 			}
 
 			//key
@@ -145,15 +145,15 @@ TEST(SCEF, load_sample1)
 				EXPECT_EQ(tkey.column_value(), 17_ui64);
 			}
 
-			//value with escape sequences
-			ASSERT_EQ(l2_group[5]->type(), scef::ItemType::value);
+			//singlet with escape sequences
+			ASSERT_EQ(l2_group[5]->type(), scef::ItemType::singlet);
 			{
-				scef::value& tvalue = *static_cast<scef::value*>(l2_group[5].get());
-				EXPECT_EQ(tvalue.quotation_mode(), scef::QuotationMode::singlemark);
-				EXPECT_EQ(tvalue.line(), 10_ui64);
-				EXPECT_EQ(tvalue.column(), 2_ui64);
+				scef::singlet& tsinglet = *static_cast<scef::singlet*>(l2_group[5].get());
+				EXPECT_EQ(tsinglet.quotation_mode(), scef::QuotationMode::singlemark);
+				EXPECT_EQ(tsinglet.line(), 10_ui64);
+				EXPECT_EQ(tsinglet.column(), 2_ui64);
 
-				const std::u32string& text = tvalue.name();
+				const std::u32string& text = tsinglet.name();
 				ASSERT_EQ(text.size(), 5_uip);
 				EXPECT_EQ(text[0], U'\n');
 				EXPECT_EQ(text[1], U'^');

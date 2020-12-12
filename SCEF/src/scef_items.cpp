@@ -196,12 +196,12 @@ itemProxy<group> ItemList::find_group_by_name(std::u32string_view p_name)
 	return {};
 }
 
-itemProxy<value> ItemList::find_value_by_name(std::u32string_view p_name)
+itemProxy<singlet> ItemList::find_singlet_by_name(std::u32string_view p_name)
 {
-	using type = value;
+	using type = singlet;
 	for(const itemProxy<item>& tobj: *this)
 	{
-		if(tobj->type() == type::static_type())
+		if(tobj->type() == singlet::static_type())
 		{
 			if(std::u32string_view{static_cast<type*>(tobj.get())->name()} == p_name)
 			{
@@ -244,9 +244,9 @@ itemProxy<const group> ItemList::find_group_by_name(std::u32string_view p_name) 
 	return {};
 }
 
-itemProxy<const value> ItemList::find_value_by_name(std::u32string_view p_name) const
+itemProxy<const singlet> ItemList::find_singlet_by_name(std::u32string_view p_name) const
 {
-	using type = const value;
+	using type = const singlet;
 	for(const itemProxy<item>& tobj: *this)
 	{
 		if(tobj->type() == type::static_type())

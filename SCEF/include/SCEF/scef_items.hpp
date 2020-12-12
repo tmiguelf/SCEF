@@ -45,7 +45,7 @@ namespace scef
 
 class item;
 class group;
-class value;
+class singlet;
 class keyedValue;
 class spacer;
 class comment;
@@ -56,7 +56,7 @@ enum class ItemType: uint8_t
 {
 	root			= 0x00,	//!< null or root item, functional, contains all items in document
 	group			= 0x01,	//!< Object item, can contain child items,
-	value			= 0x02,	//!< Lonely value
+	singlet			= 0x02,	//!< Lonely value
 	key_value		= 0x03,	//!< Contains key and value
 
 	Mask_Basic		= 0x03,	// mask basic, functional only
@@ -86,7 +86,7 @@ namespace _p
 template <typename T> struct valid_scef_proxy	{ static constexpr bool value = false; };
 template <> struct valid_scef_proxy<item>		{ static constexpr bool value = true; };
 template <> struct valid_scef_proxy<group>		{ static constexpr bool value = true; };
-template <> struct valid_scef_proxy<value>		{ static constexpr bool value = true; };
+template <> struct valid_scef_proxy<singlet>	{ static constexpr bool value = true; };
 template <> struct valid_scef_proxy<keyedValue>	{ static constexpr bool value = true; };
 template <> struct valid_scef_proxy<spacer>		{ static constexpr bool value = true; };
 template <> struct valid_scef_proxy<comment>	{ static constexpr bool value = true; };
@@ -275,10 +275,10 @@ public:
 	[[nodiscard]] const_type_iterator	convert2const_type_iterator	(const_iterator p_other,	ItemType p_type) const;
 
 	[[nodiscard]] itemProxy<group>				find_group_by_name	(std::u32string_view p_name);
-	[[nodiscard]] itemProxy<value>				find_value_by_name	(std::u32string_view p_name);
+	[[nodiscard]] itemProxy<singlet>			find_singlet_by_name(std::u32string_view p_name);
 	[[nodiscard]] itemProxy<keyedValue>			find_key_by_name	(std::u32string_view p_name);
 	[[nodiscard]] itemProxy<const group>		find_group_by_name	(std::u32string_view p_name) const;
-	[[nodiscard]] itemProxy<const value>		find_value_by_name	(std::u32string_view p_name) const;
+	[[nodiscard]] itemProxy<const singlet>		find_singlet_by_name(std::u32string_view p_name) const;
 	[[nodiscard]] itemProxy<const keyedValue>	find_key_by_name	(std::u32string_view p_name) const;
 };
 
@@ -451,14 +451,14 @@ public:
 };
 
 /// \brief SCEF entity that contains a lonely value
-class value: public item, public _p::NamedItem
+class singlet: public item, public _p::NamedItem
 {
 private:
-	value();
+	singlet();
 
 public:
-	[[nodiscard]] static itemProxy<value> make();
-	[[nodiscard]] static constexpr ItemType static_type() { return ItemType::value; }
+	[[nodiscard]] static itemProxy<singlet> make();
+	[[nodiscard]] static constexpr ItemType static_type() { return ItemType::singlet; }
 
 	_p::lineSpace m_postSpace;
 };
@@ -620,9 +620,9 @@ inline std::u32string_view		comment::view	() const						{ return _text; }
 inline void						comment::set	(std::u32string_view p_text)	{ _text = p_text; }
 inline void						comment::clear	()								{ _text.clear(); }
 
-//======== ======== class value
-inline value::value(): item(static_type()), NamedItem() {}
-inline itemProxy<value> value::make() { return itemProxy<value>{new value()}; }
+//======== ======== class singlet
+inline singlet::singlet(): item(static_type()), NamedItem() {}
+inline itemProxy<singlet> singlet::make() { return itemProxy<singlet>{new singlet()}; }
 
 //======== ======== class keyedValue
 inline keyedValue::keyedValue(): item(static_type()), NamedItem() {}

@@ -1157,12 +1157,12 @@ static Error ReadTValue(ReaderFlow& p_flow, ItemList& p_list)
 	{
 		if(lastError == Error::Control_EndOfStream)
 		{
-			itemProxy<value> t_value = value::make();
-			t_value->set_position(line, column);
-			p_list.push_back(t_value);
-			t_value->set_name(tName);
-			t_value->set_quotation_mode(tmode);
-			_p::Danger_Action::publicError(*twarn._error_context).m_criticalItem = t_value.get();
+			itemProxy<singlet> t_singlet = singlet::make();
+			t_singlet->set_position(line, column);
+			p_list.push_back(t_singlet);
+			t_singlet->set_name(tName);
+			t_singlet->set_quotation_mode(tmode);
+			_p::Danger_Action::publicError(*twarn._error_context).m_criticalItem = t_singlet.get();
 			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding(';');
 			switch(twarn.Notify())
@@ -1199,15 +1199,15 @@ static Error ReadTValue(ReaderFlow& p_flow, ItemList& p_list)
 
 		if(str_err != stream_error::None)
 		{
-			itemProxy<value> t_value = value::make();
-			t_value->set_position(line, column);
-			p_list.push_back(t_value);
-			t_value->set_name(tName);
-			t_value->set_quotation_mode(tmode);
+			itemProxy<singlet> t_singlet = singlet::make();
+			t_singlet->set_position(line, column);
+			p_list.push_back(t_singlet);
+			t_singlet->set_name(tName);
+			t_singlet->set_quotation_mode(tmode);
 
 			if(str_err != stream_error::Control_EndOfStream)
 			{
-				_p::Danger_Action::publicError(*twarn._error_context).m_criticalItem = t_value.get();
+				_p::Danger_Action::publicError(*twarn._error_context).m_criticalItem = t_singlet.get();
 			}
 
 			return static_cast<Error>(str_err);
@@ -1217,11 +1217,11 @@ static Error ReadTValue(ReaderFlow& p_flow, ItemList& p_list)
 	lchar = decoder.lastChar();
 	if(lchar != '=')
 	{
-		itemProxy<value> t_value = value::make();
-		t_value->set_position(line, column);
-		p_list.push_back(t_value);
-		t_value->set_name(tName);
-		t_value->set_quotation_mode(tmode);
+		itemProxy<singlet> t_singlet = singlet::make();
+		t_singlet->set_position(line, column);
+		p_list.push_back(t_singlet);
+		t_singlet->set_name(tName);
+		t_singlet->set_quotation_mode(tmode);
 
 		switch(lchar)
 		{
@@ -1242,7 +1242,7 @@ static Error ReadTValue(ReaderFlow& p_flow, ItemList& p_list)
 				[[fallthrough]];
 			case ',':
 			case ';':
-				_p::Danger_Action::move_spacing(t_value->m_postSpace, tspacing);
+				_p::Danger_Action::move_spacing(t_singlet->m_postSpace, tspacing);
 				return static_cast<Error>(decoder.get_char().error_code());
 			case '\n':
 				{
@@ -1666,9 +1666,9 @@ ReadGroup$HeaderEnd:
 									lastError = static_cast<Error>(decoder.get_char().error_code());
 									break;
 								case warningBehaviour::Accept:
-									//Add Ghost value
+									//Add Ghost singlet
 									{
-										itemProxy<value> t_item = value::make();
+										itemProxy<singlet> t_item = singlet::make();
 										t_item->set_position(decoder.line(), decoder.column() - 1);
 										p_group.push_back(t_item);
 									}
@@ -1837,9 +1837,9 @@ void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, [[maybe_unused]
 									lastError = static_cast<Error>(p_decoder.get_char().error_code());
 									break;
 								case warningBehaviour::Accept:
-									//Add Ghost value
+									//Add Ghost singlet
 									{
-										itemProxy<value> t_item = value::make();
+										itemProxy<singlet> t_item = singlet::make();
 										t_item->set_position(p_decoder.line(), p_decoder.column() - 1);
 										p_root.push_back(t_item);
 									}
@@ -2431,61 +2431,61 @@ static bool WriteKeyValueNoSpace(WriterFlow& p_flow, const keyedValue& p_key, ui
 	return WriteChar(p_flow, U';');
 }
 
-static bool WriteValueDefault(WriterFlow& p_flow, const value& p_value, uint8_t /*p_level*/)
+static bool WriteSingletDefault(WriterFlow& p_flow, const singlet& p_singlet, uint8_t /*p_level*/)
 {
-	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_value;
+	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_singlet;
 
 	//Key name
 	if(p_flow.m_autoQuote)
 	{
-		if(!WriteNameAuto(p_flow, p_value.name())) return false;
+		if(!WriteNameAuto(p_flow, p_singlet.name())) return false;
 	}
 	else
 	{
-		if(!WriteNamePrefered(p_flow, p_value.name(), p_value.quotation_mode())) return false;
+		if(!WriteNamePrefered(p_flow, p_singlet.name(), p_singlet.quotation_mode())) return false;
 	}
 
-	if(!WriteSpacing(p_flow, p_value.m_postSpace)) return false;
+	if(!WriteSpacing(p_flow, p_singlet.m_postSpace)) return false;
 
 	//close Key
 	return WriteChar(p_flow, U';');
 }
 
-static bool WriteValueAutoSpace(WriterFlow& p_flow, const value& p_value, uint8_t p_level)
+static bool WriteSingletAutoSpace(WriterFlow& p_flow, const singlet& p_singlet, uint8_t p_level)
 {
-	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_value;
+	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_singlet;
 
 	if(!WriteAutoTabulation(p_flow, p_level)) return false;
 
-	//value name
+	//singlet name
 	if(p_flow.m_autoQuote)
 	{
-		if(!WriteNameAuto(p_flow, p_value.name())) return false;
+		if(!WriteNameAuto(p_flow, p_singlet.name())) return false;
 	}
 	else
 	{
-		if(!WriteNamePrefered(p_flow, p_value.name(), p_value.quotation_mode())) return false;
+		if(!WriteNamePrefered(p_flow, p_singlet.name(), p_singlet.quotation_mode())) return false;
 	}
 
 	//close Key
 	return WriteChar(p_flow, U';');
 }
 
-static bool WriteValueNoSpace(WriterFlow& p_flow, const value& p_value, uint8_t /*p_level*/)
+static bool WriteSingletNoSpace(WriterFlow& p_flow, const singlet& p_singlet, uint8_t /*p_level*/)
 {
-	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_value;
+	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_singlet;
 
-	//value name
+	//value singlet
 	if(p_flow.m_autoQuote)
 	{
-		if(!WriteNameAuto(p_flow, p_value.view_name())) return false;
+		if(!WriteNameAuto(p_flow, p_singlet.view_name())) return false;
 	}
 	else
 	{
-		if(!WriteNamePrefered(p_flow, p_value.view_name(), p_value.quotation_mode())) return false;
+		if(!WriteNamePrefered(p_flow, p_singlet.view_name(), p_singlet.quotation_mode())) return false;
 	}
 
-	//close value
+	//close singlet
 	return WriteChar(p_flow, U';');
 }
 
@@ -2546,8 +2546,8 @@ static bool WriteListAll(WriterFlow& p_flow, const ItemList& p_list, uint8_t p_l
 			case ItemType::group:
 				if(!WriteGroupDefault(p_flow, *static_cast<const group*>(it->get()), p_level)) return false;
 				break;
-			case ItemType::value:
-				if(!WriteValueDefault(p_flow, *static_cast<const value*>(it->get()), p_level)) return false;
+			case ItemType::singlet:
+				if(!WriteSingletDefault(p_flow, *static_cast<const singlet*>(it->get()), p_level)) return false;
 				break;
 			case ItemType::key_value:
 				if(!WriteKeyValueDefault(p_flow, *static_cast<const keyedValue*>(it->get()), p_level)) return false;
@@ -2603,11 +2603,11 @@ static bool WriteListAutoSpace(WriterFlow& p_flow, const ItemList& p_list, uint8
 				t_lastLine		= tproxy->line();
 				if(!WriteGroupAutoSpace(p_flow, *static_cast<const group*>(tproxy.get()), p_level)) return false;
 				break;
-			case ItemType::value:
+			case ItemType::singlet:
 				b_hasitem		= true;
 				b_lastRelevant	= true;
 				t_lastLine		= tproxy->line();
-				if(!WriteValueAutoSpace(p_flow, *static_cast<const value*>(tproxy.get()), p_level)) return false;
+				if(!WriteSingletAutoSpace(p_flow, *static_cast<const singlet*>(tproxy.get()), p_level)) return false;
 				break;
 			case ItemType::key_value:
 				b_hasitem		= true;
@@ -2684,8 +2684,8 @@ static bool WriteListNoSpace(WriterFlow& p_flow, const ItemList& p_list, uint8_t
 			case ItemType::group:
 				if(!WriteGroupNoSpace(p_flow, *static_cast<const group*>(tproxy.get()), p_level)) return false;
 				break;
-			case ItemType::value:
-				if(!WriteValueNoSpace(p_flow, *static_cast<const value*>(tproxy.get()), p_level)) return false;
+			case ItemType::singlet:
+				if(!WriteSingletNoSpace(p_flow, *static_cast<const singlet*>(tproxy.get()), p_level)) return false;
 				break;
 			case ItemType::key_value:
 				if(!WriteKeyValueNoSpace(p_flow, *static_cast<const keyedValue*>(tproxy.get()), p_level)) return false;
@@ -2726,8 +2726,8 @@ static bool WriteListNoComment(WriterFlow& p_flow, const ItemList& p_list, uint8
 			case ItemType::group:
 				if(!WriteGroupDefault(p_flow, *static_cast<const group*>(it->get()), p_level)) return false;
 				break;
-			case ItemType::value:
-				if(!WriteValueDefault(p_flow, *static_cast<const value*>(it->get()), p_level)) return false;
+			case ItemType::singlet:
+				if(!WriteSingletDefault(p_flow, *static_cast<const singlet*>(it->get()), p_level)) return false;
 				break;
 			case ItemType::key_value:
 				if(!WriteKeyValueDefault(p_flow, *static_cast<const keyedValue*>(it->get()), p_level)) return false;
@@ -2778,8 +2778,8 @@ static bool WriteListAutoNoComment(WriterFlow& p_flow, const ItemList& p_list, u
 				b_hasitem = true;
 				if(!WriteGroupAutoSpace(p_flow, *static_cast<const group*>(tproxy.get()), p_level)) return false;
 				break;
-			case ItemType::value:
-				if(!WriteValueAutoSpace(p_flow, *static_cast<const value*>(tproxy.get()), p_level)) return false;
+			case ItemType::singlet:
+				if(!WriteSingletAutoSpace(p_flow, *static_cast<const singlet*>(tproxy.get()), p_level)) return false;
 				break;
 			case ItemType::key_value:
 				b_hasitem = true;
@@ -2829,8 +2829,8 @@ static bool WriteListCompact(WriterFlow& p_flow, const ItemList& p_list, uint8_t
 			case ItemType::group:
 				if(!WriteGroupNoSpace(p_flow, *static_cast<const group*>(tproxy.get()), p_level)) return false;
 				break;
-			case ItemType::value:
-				if(!WriteValueNoSpace(p_flow, *static_cast<const value*>(tproxy.get()), p_level)) return false;
+			case ItemType::singlet:
+				if(!WriteSingletNoSpace(p_flow, *static_cast<const singlet*>(tproxy.get()), p_level)) return false;
 				break;
 			case ItemType::key_value:
 				if(!WriteKeyValueNoSpace(p_flow, *static_cast<const keyedValue*>(tproxy.get()), p_level)) return false;
