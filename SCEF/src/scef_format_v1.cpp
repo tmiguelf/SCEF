@@ -285,7 +285,7 @@ static bool loadEscapeOcta(char32_t p_char, void* p_context)
 
 static Error ReadComment(ReaderFlow& p_flow, comment& p_comment)
 {
-	p_comment.set_position(p_flow.m_decoder.line(), p_flow.m_decoder.column() - 1);
+	p_comment.set_position(p_flow.m_decoder.line(), p_flow.m_decoder.column());
 	std::u32string temp;
 	stream_error ret = p_flow.m_decoder.read_while(loadUntilNewLine, &temp);
 	p_comment.set(temp);
@@ -321,7 +321,7 @@ static Error ReadSpaceSkip(ReaderFlow& p_flow)
 
 static Error ReadSpace(ReaderFlow& p_flow, spacer& p_spacer)
 {
-	p_spacer.set_position(p_flow.m_decoder.line(), p_flow.m_decoder.column() - 1);
+	p_spacer.set_position(p_flow.m_decoder.line(), p_flow.m_decoder.column());
 	multiline_spacing_helper data;
 	stream_error ret = p_flow.m_decoder.read_while(loadMultilineSpacing, &data);
 
@@ -336,7 +336,7 @@ static Error ReadTrashEscapeSequence(ReaderFlow& p_flow)
 	_Warning_Def& twarn		= p_flow.m_warnDef;
 	stream_decoder& decoder	= p_flow.m_decoder;
 
-	_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+	_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 
 	stream_decoder::result_t temp = decoder.get_char();
 	if(temp.error_code() != stream_error::None)
@@ -473,7 +473,7 @@ static Error ReadEscapeSequence(ReaderFlow& p_flow, std::u32string& p_out)
 	_Warning_Def& twarn		= p_flow.m_warnDef;
 	stream_decoder& decoder	= p_flow.m_decoder;
 
-	_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+	_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 
 	stream_decoder::result_t temp = decoder.get_char();
 	if(temp.error_code() != stream_error::None)
@@ -659,7 +659,7 @@ magic$continuation:
 		{
 			if(lastError == Error::Control_EndOfStream)
 			{
-				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 				_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding('\'');
 				switch(twarn.Notify())
 				{
@@ -679,7 +679,7 @@ magic$continuation:
 		switch(decoder.lastChar())
 		{
 			case '\n':
-				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 				_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(decoder.lastChar(), '\'');
 				switch(twarn.Notify())
 				{
@@ -721,7 +721,7 @@ magic$continuation:
 		{
 			if(lastError == Error::Control_EndOfStream)
 			{
-				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 				_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding('\"');
 				switch(twarn.Notify())
 				{
@@ -741,7 +741,7 @@ magic$continuation:
 		switch(decoder.lastChar())
 		{
 			case '\n':
-				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 				_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(decoder.lastChar(), '\"');
 				switch(twarn.Notify())
 				{
@@ -860,7 +860,7 @@ static Error ReadKeyValue(ReaderFlow& p_flow, keyedValue& p_keyValue, ItemList& 
 	_Warning_Def& twarn = p_flow.m_warnDef;
 	stream_decoder& decoder = p_flow.m_decoder;
 	uint64_t line = decoder.line();
-	uint64_t column = decoder.column();
+	uint64_t column = decoder.column() + 1;
 
 	stream_error str_err = decoder.get_char().error_code();
 	_p::Danger_Action::publicError(*twarn._error_context).m_criticalItem = &p_keyValue;
@@ -870,7 +870,7 @@ static Error ReadKeyValue(ReaderFlow& p_flow, keyedValue& p_keyValue, ItemList& 
 		case stream_error::None:
 			break;
 		case stream_error::Control_EndOfStream:
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding(';');
 			switch(twarn.Notify())
 			{
@@ -907,7 +907,7 @@ static Error ReadKeyValue(ReaderFlow& p_flow, keyedValue& p_keyValue, ItemList& 
 			case stream_error::None:
 				break;
 			case stream_error::Control_EndOfStream:
-				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 				_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding(';');
 				switch(twarn.Notify())
 				{
@@ -931,7 +931,7 @@ static Error ReadKeyValue(ReaderFlow& p_flow, keyedValue& p_keyValue, ItemList& 
 	switch(tchar)
 	{
 		case ':':
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(tchar, ';');
 			switch(twarn.Notify())
 			{
@@ -961,7 +961,7 @@ static Error ReadKeyValue(ReaderFlow& p_flow, keyedValue& p_keyValue, ItemList& 
 				p_list.push_back(t_item);
 				_p::Danger_Action::move_spacing(*t_item, tspacing);
 			}
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(decoder.lastChar(), ';');
 			switch(twarn.Notify())
 			{
@@ -977,7 +977,7 @@ static Error ReadKeyValue(ReaderFlow& p_flow, keyedValue& p_keyValue, ItemList& 
 			_p::Danger_Action::publicError(*twarn._error_context).m_criticalItem = nullptr;
 			return Error::None;
 		case '\n':
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(decoder.lastChar(), ';');
 			switch(twarn.Notify())
 			{
@@ -995,7 +995,7 @@ static Error ReadKeyValue(ReaderFlow& p_flow, keyedValue& p_keyValue, ItemList& 
 		default:
 			if(is_dangerCodepoint(tchar))
 			{
-				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 				_p::Danger_Action::publicError(*twarn._error_context).SetPlainError(Error::BadFormat);
 				return Error::BadFormat;
 			}
@@ -1007,18 +1007,18 @@ static Error ReadKeyValue(ReaderFlow& p_flow, keyedValue& p_keyValue, ItemList& 
 	Error res;
 	{
 		QuotationMode tmode;
-		p_keyValue.set_column_value(decoder.column() - 1);
+		p_keyValue.set_column_value(decoder.column());
 		res = ReadName(p_flow, p_keyValue.value(), tmode);
 		p_keyValue.set_value_quotation_mode(tmode);
 	}
 
-	column = decoder.column();
+	column = decoder.column() + 1;
 
 	if(res != Error::None)
 	{
 		if(res == Error::Control_EndOfStream)
 		{
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding(';');
 
 			switch(twarn.Notify())
@@ -1055,7 +1055,7 @@ static Error ReadKeyValue(ReaderFlow& p_flow, keyedValue& p_keyValue, ItemList& 
 			case stream_error::None:
 				break;
 			case stream_error::Control_EndOfStream:
-				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 				_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding(';');
 				switch(twarn.Notify())
 				{
@@ -1078,7 +1078,7 @@ static Error ReadKeyValue(ReaderFlow& p_flow, keyedValue& p_keyValue, ItemList& 
 	switch(tchar)
 	{
 		case ':':
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(':', ';');
 			switch(twarn.Notify())
 			{
@@ -1098,7 +1098,7 @@ static Error ReadKeyValue(ReaderFlow& p_flow, keyedValue& p_keyValue, ItemList& 
 			_p::Danger_Action::publicError(*twarn._error_context).m_criticalItem = nullptr;
 			return static_cast<Error>(decoder.get_char().error_code());
 		case '\n':
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar('\n', ';');
 			switch(twarn.Notify())
 			{
@@ -1120,7 +1120,7 @@ static Error ReadKeyValue(ReaderFlow& p_flow, keyedValue& p_keyValue, ItemList& 
 				p_list.push_back(t_item);
 				_p::Danger_Action::move_spacing(*t_item, tspacing);
 			}
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(tchar, ';');
 			switch(twarn.Notify())
 			{
@@ -1149,7 +1149,7 @@ static Error ReadTValue(ReaderFlow& p_flow, ItemList& p_list)
 	QuotationMode tmode;
 
 	uint64_t line = decoder.line();
-	uint64_t column = decoder.column() - 1;
+	uint64_t column = decoder.column();
 
 	//name
 	Error lastError = ReadName(p_flow, tName, tmode);
@@ -1163,7 +1163,7 @@ static Error ReadTValue(ReaderFlow& p_flow, ItemList& p_list)
 			t_singlet->set_name(tName);
 			t_singlet->set_quotation_mode(tmode);
 			_p::Danger_Action::publicError(*twarn._error_context).m_criticalItem = t_singlet.get();
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding(';');
 			switch(twarn.Notify())
 			{
@@ -1183,7 +1183,7 @@ static Error ReadTValue(ReaderFlow& p_flow, ItemList& p_list)
 	char32_t lchar = decoder.lastChar();
 
 	std::u8string tspacing;
-	uint64_t spacing_column = decoder.column() - 1;
+	uint64_t spacing_column = decoder.column();
 	if(_p::is_space_noLF(decoder.lastChar()))
 	{
 		tspacing.push_back(static_cast<char8_t>(decoder.lastChar()));
@@ -1227,7 +1227,7 @@ static Error ReadTValue(ReaderFlow& p_flow, ItemList& p_list)
 		{
 			case ':':
 				_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(':', ';');
-				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 				switch(twarn.Notify())
 				{
 					case warningBehaviour::Continue:
@@ -1247,7 +1247,7 @@ static Error ReadTValue(ReaderFlow& p_flow, ItemList& p_list)
 			case '\n':
 				{
 					_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(lchar, ';');
-					_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+					_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 					switch(twarn.Notify())
 					{
 						case warningBehaviour::Continue:
@@ -1273,13 +1273,13 @@ static Error ReadTValue(ReaderFlow& p_flow, ItemList& p_list)
 
 				if(is_dangerCodepoint(lchar))
 				{
-					_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+					_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 					_p::Danger_Action::publicError(*twarn._error_context).SetPlainError(Error::BadFormat);
 					return Error::BadFormat;
 				}
 
 				_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(lchar, ';');
-				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 				switch(twarn.Notify())
 				{
 					case warningBehaviour::Continue:
@@ -1299,7 +1299,7 @@ static Error ReadTValue(ReaderFlow& p_flow, ItemList& p_list)
 	//at this point it is certain to be a keyvalue
 	itemProxy<keyedValue> t_keyValue = keyedValue::make();
 	t_keyValue->set_position(line, column);
-	t_keyValue->set_column_value(decoder.column());
+	t_keyValue->set_column_value(decoder.column() + 1);
 	p_list.push_back(t_keyValue);
 	t_keyValue->set_name(tName);
 	t_keyValue->set_quotation_mode(tmode);
@@ -1333,7 +1333,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 			case stream_error::None:
 				break;
 			case stream_error::Control_EndOfStream:
-				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 				_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding('>');
 				switch(p_flow.m_warnDef.Notify())
 				{
@@ -1358,7 +1358,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 		case ',':
 		case ';':
 			//handle error, go to first item
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(decoder.lastChar(), ':');
 			switch(p_flow.m_warnDef.Notify())
 			{
@@ -1378,7 +1378,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 					case stream_error::None:
 						break;
 					case stream_error::Control_EndOfStream:
-						_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+						_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 						_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding('>');
 						switch(p_flow.m_warnDef.Notify())
 						{
@@ -1403,7 +1403,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 		case '<':
 		case '#':
 			//handle error, go to first item
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(decoder.lastChar(), ':');
 			switch(p_flow.m_warnDef.Notify())
 			{
@@ -1420,7 +1420,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 		case ':':
 			goto ReadGroup$HeaderEnd;
 		case '>':
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(decoder.lastChar(), ':');
 			switch(p_flow.m_warnDef.Notify())
 			{
@@ -1438,7 +1438,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 		default:
 			if(is_dangerCodepoint(decoder.lastChar()))
 			{
-				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 				_p::Danger_Action::publicError(*twarn._error_context).SetPlainError(Error::BadFormat);
 				return Error::BadFormat;
 			}
@@ -1452,7 +1452,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 				{
 					if(t_err == Error::Control_EndOfStream)
 					{
-						_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+						_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 						_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding('>');
 						switch(p_flow.m_warnDef.Notify())
 						{
@@ -1478,7 +1478,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 	{
 		case ',':
 		case ';':
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(decoder.lastChar(), ':');
 			switch(p_flow.m_warnDef.Notify())
 			{
@@ -1498,7 +1498,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 					case stream_error::None:
 						break;
 					case stream_error::Control_EndOfStream:
-						_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+						_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 						_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding('>');
 						switch(p_flow.m_warnDef.Notify())
 						{
@@ -1522,7 +1522,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 			lastError = static_cast<Error>(decoder.get_char().error_code());
 			break;
 		case '>':
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar('>', ':');
 			switch(p_flow.m_warnDef.Notify())
 			{
@@ -1542,7 +1542,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 		case '<':
 		case '#':
 			//handle error, go to first item
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(decoder.lastChar(), ':');
 			switch(p_flow.m_warnDef.Notify())
 			{
@@ -1575,7 +1575,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 					case stream_error::None:
 						break;
 					case stream_error::Control_EndOfStream:
-						_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+						_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 						_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding('>');
 						switch(p_flow.m_warnDef.Notify())
 						{
@@ -1602,13 +1602,13 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 			}
 			if(is_badCodePoint(decoder.lastChar()))
 			{
-				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 				_p::Danger_Action::publicError(*twarn._error_context).SetPlainError(Error::BadFormat);
 				return Error::BadFormat;
 			}
 
 			//handle error, go to first item
-			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(decoder.lastChar(), ':');
 			switch(p_flow.m_warnDef.Notify())
 			{
@@ -1638,7 +1638,7 @@ ReadGroup$HeaderEnd:
 					{
 						case ':':
 							{
-								_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+								_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 								_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(':', 0);
 								switch(twarn.Notify())
 								{
@@ -1656,7 +1656,7 @@ ReadGroup$HeaderEnd:
 							break;
 						case ',':
 						case ';':
-							_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+							_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 							_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(lastChar, 0);
 							switch(p_flow.m_warnDef.Notify())
 							{
@@ -1669,7 +1669,7 @@ ReadGroup$HeaderEnd:
 									//Add Ghost singlet
 									{
 										itemProxy<singlet> t_item = singlet::make();
-										t_item->set_position(decoder.line(), decoder.column() - 1);
+										t_item->set_position(decoder.line(), decoder.column());
 										p_group.push_back(t_item);
 									}
 									lastError = static_cast<Error>(decoder.get_char().error_code());
@@ -1680,7 +1680,7 @@ ReadGroup$HeaderEnd:
 							}
 							break;
 						case '=':
-							_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+							_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 							_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar('=', 0);
 							switch(twarn.Notify())
 							{
@@ -1690,8 +1690,8 @@ ReadGroup$HeaderEnd:
 									//Start key
 									{
 										itemProxy<keyedValue> t_item = keyedValue::make();
-										t_item->set_position(decoder.line(), decoder.column() - 1);
-										t_item->set_column_value(decoder.column());
+										t_item->set_position(decoder.line(), decoder.column());
+										t_item->set_column_value(decoder.column() + 1);
 										p_group.push_back(t_item);
 										lastError = ReadKeyValue(p_flow, *t_item, p_group);
 									}
@@ -1708,7 +1708,7 @@ ReadGroup$HeaderEnd:
 							//Start group
 							{
 								itemProxy<group> t_item = group::make();
-								t_item->set_position(decoder.line(), decoder.column() - 1);
+								t_item->set_position(decoder.line(), decoder.column());
 								p_group.push_back(t_item);
 								lastError = ReadGroup(p_flow, *t_item);
 							}
@@ -1746,7 +1746,7 @@ ReadGroup$HeaderEnd:
 							}
 							else if(is_dangerCodepoint(lastChar))
 							{
-								_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() - 1);
+								_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 								_p::Danger_Action::publicError(*twarn._error_context).SetPlainError(Error::BadFormat);
 								return Error::BadFormat;
 							}
@@ -1759,7 +1759,7 @@ ReadGroup$HeaderEnd:
 				}
 				break;
 			case Error::Control_EndOfStream:
-				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
+				_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column() + 1);
 				_p::Danger_Action::publicError(*twarn._error_context).SetErrorPrematureEnding('>');
 				switch(p_flow.m_warnDef.Notify())
 				{
@@ -1819,14 +1819,14 @@ void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, [[maybe_unused]
 							//Start group
 							{
 								itemProxy<group> t_item = group::make();
-								t_item->set_position(p_decoder.line(), p_decoder.column() - 1);
+								t_item->set_position(p_decoder.line(), p_decoder.column());
 								p_root.push_back(t_item);
 								lastError = ReadGroup(t_flow, *t_item);
 							}
 							break;
 						case ',':
 						case ';':
-							_p::Danger_Action::publicError(*p_warn._error_context).set_position(p_decoder.line(), p_decoder.column() - 1);
+							_p::Danger_Action::publicError(*p_warn._error_context).set_position(p_decoder.line(), p_decoder.column());
 							_p::Danger_Action::publicError(*p_warn._error_context).SetErrorInvalidChar(lastChar, 0);
 
 							switch(p_warn.Notify())
@@ -1840,7 +1840,7 @@ void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, [[maybe_unused]
 									//Add Ghost singlet
 									{
 										itemProxy<singlet> t_item = singlet::make();
-										t_item->set_position(p_decoder.line(), p_decoder.column() - 1);
+										t_item->set_position(p_decoder.line(), p_decoder.column());
 										p_root.push_back(t_item);
 									}
 									lastError = static_cast<Error>(p_decoder.get_char().error_code());
@@ -1851,7 +1851,7 @@ void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, [[maybe_unused]
 							}
 							break;
 						case '=':
-							_p::Danger_Action::publicError(*p_warn._error_context).set_position(p_decoder.line(), p_decoder.column() - 1);
+							_p::Danger_Action::publicError(*p_warn._error_context).set_position(p_decoder.line(), p_decoder.column());
 							_p::Danger_Action::publicError(*p_warn._error_context).SetErrorInvalidChar('=', 0);
 							switch(p_warn.Notify())
 							{
@@ -1861,8 +1861,8 @@ void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, [[maybe_unused]
 									//Start key
 									{
 										itemProxy<keyedValue> t_item = keyedValue::make();
-										t_item->set_position(p_decoder.line(), p_decoder.column() - 1);
-										t_item->set_column_value(p_decoder.column());
+										t_item->set_position(p_decoder.line(), p_decoder.column());
+										t_item->set_column_value(p_decoder.column() + 1);
 										p_root.push_back(t_item);
 										lastError = ReadKeyValue(t_flow, *t_item, p_root);
 									}
@@ -1876,7 +1876,7 @@ void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, [[maybe_unused]
 							}
 							break;
 						case ':':
-							_p::Danger_Action::publicError(*p_warn._error_context).set_position(p_decoder.line(), p_decoder.column() - 1);
+							_p::Danger_Action::publicError(*p_warn._error_context).set_position(p_decoder.line(), p_decoder.column());
 							_p::Danger_Action::publicError(*p_warn._error_context).SetErrorInvalidChar(':', 0);
 							switch(p_warn.Notify())
 							{
@@ -1892,7 +1892,7 @@ void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, [[maybe_unused]
 							}
 							break;
 						case '>':
-							_p::Danger_Action::publicError(*p_warn._error_context).set_position(p_decoder.line(), p_decoder.column() - 1);
+							_p::Danger_Action::publicError(*p_warn._error_context).set_position(p_decoder.line(), p_decoder.column());
 							_p::Danger_Action::publicError(*p_warn._error_context).SetErrorInvalidChar('>', 0);
 							switch(p_warn.Notify())
 							{
@@ -1924,7 +1924,7 @@ void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, [[maybe_unused]
 							}
 							else if(is_dangerCodepoint(lastChar))
 							{
-								_p::Danger_Action::publicError(*p_warn._error_context).set_position(p_decoder.line(), p_decoder.column() - 1);
+								_p::Danger_Action::publicError(*p_warn._error_context).set_position(p_decoder.line(), p_decoder.column());
 								_p::Danger_Action::publicError(*p_warn._error_context).SetPlainError(Error::BadFormat);
 							}
 							else
@@ -1937,7 +1937,7 @@ void load(root& p_root, stream_decoder& p_decoder, Flag p_flags, [[maybe_unused]
 				break;
 			case Error::Control_EndOfStream:
 				p_warn._error_context->clear();
-				_p::Danger_Action::publicError(*p_warn._error_context).set_position(p_decoder.line(), p_decoder.column());
+				_p::Danger_Action::publicError(*p_warn._error_context).set_position(p_decoder.line(), p_decoder.column() + 1);
 				return;
 			default:
 				_p::Danger_Action::publicError(*p_warn._error_context).SetPlainError(lastError);
