@@ -38,11 +38,11 @@ TEST(SCEF, load_sample1)
 
 	ASSERT_EQ(root[0]->type(), scef::ItemType::spacer);
 	EXPECT_EQ(root[0]->line(), 2_ui64);
-	EXPECT_EQ(root[0]->column(), 0_ui64);
+	EXPECT_EQ(root[0]->column(), 1_ui64);
 
 	ASSERT_EQ(root[1]->type(), scef::ItemType::group);
 	EXPECT_EQ(root[1]->line(), 3_ui64);
-	EXPECT_EQ(root[1]->column(), 0_ui64);
+	EXPECT_EQ(root[1]->column(), 1_ui64);
 
 	{
 		scef::group& l1_group = *static_cast<scef::group*>(root[1].get());
@@ -53,24 +53,24 @@ TEST(SCEF, load_sample1)
 		//spacers
 		ASSERT_EQ(l1_group[0]->type(), scef::ItemType::spacer);
 		EXPECT_EQ(l1_group[0]->line(), 3_ui64);
-		EXPECT_EQ(l1_group[0]->column(), 8_ui64);
+		EXPECT_EQ(l1_group[0]->column(), 9_ui64);
 
 		ASSERT_EQ(l1_group[2]->type(), scef::ItemType::spacer);
 		EXPECT_EQ(l1_group[2]->line(), 4_ui64);
-		EXPECT_EQ(l1_group[2]->column(), 7_ui64);
+		EXPECT_EQ(l1_group[2]->column(), 8_ui64);
 
 		ASSERT_EQ(l1_group[4]->type(), scef::ItemType::spacer);
 		EXPECT_EQ(l1_group[4]->line(), 5_ui64);
-		EXPECT_EQ(l1_group[4]->column(), 13_ui64);
+		EXPECT_EQ(l1_group[4]->column(), 14_ui64);
 
 		ASSERT_EQ(l1_group[6]->type(), scef::ItemType::spacer);
 		EXPECT_EQ(l1_group[6]->line(), 11_ui64);
-		EXPECT_EQ(l1_group[6]->column(), 2_ui64);
+		EXPECT_EQ(l1_group[6]->column(), 3_ui64);
 
 		//comment
 		ASSERT_EQ(l1_group[7]->type(), scef::ItemType::comment);
 		EXPECT_EQ(l1_group[7]->line(), 13_ui64);
-		EXPECT_EQ(l1_group[7]->column(), 1_ui64);
+		EXPECT_EQ(l1_group[7]->column(), 2_ui64);
 
 		//singlet
 		ASSERT_EQ(l1_group[1]->type(), scef::ItemType::singlet);
@@ -79,7 +79,7 @@ TEST(SCEF, load_sample1)
 			ASSERT_EQ(tsinglet.name(), U"value");
 			EXPECT_EQ(tsinglet.quotation_mode(), scef::QuotationMode::standard);
 			EXPECT_EQ(tsinglet.line(), 4_ui64);
-			EXPECT_EQ(tsinglet.column(), 1_ui64);
+			EXPECT_EQ(tsinglet.column(), 2_ui64);
 		}
 
 		//key
@@ -90,10 +90,10 @@ TEST(SCEF, load_sample1)
 			ASSERT_EQ(tkey.value(), U"value");
 			EXPECT_EQ(tkey.quotation_mode(), scef::QuotationMode::standard);
 			EXPECT_EQ(tkey.line(), 5_ui64);
-			EXPECT_EQ(tkey.column(), 1_ui64);
+			EXPECT_EQ(tkey.column(), 2_ui64);
 
 			EXPECT_EQ(tkey.value_quotation_mode(), scef::QuotationMode::standard);
-			EXPECT_EQ(tkey.column_value(), 7_ui64);
+			EXPECT_EQ(tkey.column_value(), 8_ui64);
 		}
 
 		//group
@@ -107,19 +107,19 @@ TEST(SCEF, load_sample1)
 			//spacers
 			ASSERT_EQ(l2_group[0]->type(), scef::ItemType::spacer);
 			EXPECT_EQ(l2_group[0]->line(), 7_ui64);
-			EXPECT_EQ(l2_group[0]->column(), 23_ui64);
+			EXPECT_EQ(l2_group[0]->column(), 24_ui64);
 
 			ASSERT_EQ(l2_group[2]->type(), scef::ItemType::spacer);
 			EXPECT_EQ(l2_group[2]->line(), 8_ui64);
-			EXPECT_EQ(l2_group[2]->column(), 32_ui64);
+			EXPECT_EQ(l2_group[2]->column(), 33_ui64);
 
 			ASSERT_EQ(l2_group[4]->type(), scef::ItemType::spacer);
 			EXPECT_EQ(l2_group[4]->line(), 9_ui64);
-			EXPECT_EQ(l2_group[4]->column(), 17_ui64);
+			EXPECT_EQ(l2_group[4]->column(), 18_ui64);
 
 			ASSERT_EQ(l2_group[6]->type(), scef::ItemType::spacer);
 			EXPECT_EQ(l2_group[6]->line(), 10_ui64);
-			EXPECT_EQ(l2_group[6]->column(), 28_ui64);
+			EXPECT_EQ(l2_group[6]->column(), 29_ui64);
 
 			//singlet
 			ASSERT_EQ(l2_group[3]->type(), scef::ItemType::singlet);
@@ -128,7 +128,7 @@ TEST(SCEF, load_sample1)
 				ASSERT_EQ(tsinglet.name(), U"Escape value");
 				EXPECT_EQ(tsinglet.quotation_mode(), scef::QuotationMode::singlemark);
 				EXPECT_EQ(tsinglet.line(), 9_ui64);
-				EXPECT_EQ(tsinglet.column(), 2_ui64);
+				EXPECT_EQ(tsinglet.column(), 3_ui64);
 			}
 
 			//key
@@ -139,10 +139,10 @@ TEST(SCEF, load_sample1)
 				ASSERT_EQ(tkey.value(), U"Escape Value");
 				EXPECT_EQ(tkey.quotation_mode(), scef::QuotationMode::singlemark);
 				EXPECT_EQ(tkey.line(), 8_ui64);
-				EXPECT_EQ(tkey.column(), 2_ui64);
+				EXPECT_EQ(tkey.column(), 3_ui64);
 
 				EXPECT_EQ(tkey.value_quotation_mode(), scef::QuotationMode::doublemark);
-				EXPECT_EQ(tkey.column_value(), 17_ui64);
+				EXPECT_EQ(tkey.column_value(), 18_ui64);
 			}
 
 			//singlet with escape sequences
@@ -151,7 +151,7 @@ TEST(SCEF, load_sample1)
 				scef::singlet& tsinglet = *static_cast<scef::singlet*>(l2_group[5].get());
 				EXPECT_EQ(tsinglet.quotation_mode(), scef::QuotationMode::singlemark);
 				EXPECT_EQ(tsinglet.line(), 10_ui64);
-				EXPECT_EQ(tsinglet.column(), 2_ui64);
+				EXPECT_EQ(tsinglet.column(), 3_ui64);
 
 				const std::u32string& text = tsinglet.name();
 				ASSERT_EQ(text.size(), 5_uip);
