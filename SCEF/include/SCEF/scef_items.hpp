@@ -92,13 +92,13 @@ template <> struct valid_scef_proxy<spacer>		{ static constexpr bool value = tru
 template <> struct valid_scef_proxy<comment>	{ static constexpr bool value = true; };
 
 template<typename T>
-constexpr bool is_valid_scef_proxy_v = valid_scef_proxy<std::remove_const_t<T>>::value;
+concept is_valid_scef_proxy_c = valid_scef_proxy<std::remove_const_t<T>>::value;
 } //namespace _p
 
 /// \brief handles ownership model for items in lists
 /// \tparam T - Item type
-template<typename T>
-using itemProxy = std::shared_ptr<std::enable_if_t<_p::is_valid_scef_proxy_v<T>, T>>;
+template<_p::is_valid_scef_proxy_c T>
+using itemProxy = std::shared_ptr<T>;
 
 
 //======== ======== ======== List Handling ======== ======== ========
@@ -490,10 +490,10 @@ public:
 	/// \brief Converts the value to UTF8
 	[[nodiscard]] std::u8string value_UTF8() const;
 
-	template<typename T, typename = std::enable_if_t<core::from_chars_supported_v<T>, void>>
+	template<core::from_chars_supported_c T>
 	[[nodiscard]] inline ::core::from_chars_result<T> value_as_num() const { return core::from_chars<T>(_value); };
 
-	void			set_value(std::u32string_view p_text);
+	void set_value(std::u32string_view p_text);
 
 	[[nodiscard]] QuotationMode value_quotation_mode() const;
 
