@@ -337,7 +337,7 @@ But you can achieve the same result as a multi-line comment by doing the followi
 	port=26; 
 # The alternative port is used in case the primary port is inaccessible
 # 3 connections are attempted on the primary port
-# before the switch to alternate port takes place */ #HO NO!
+# before the switch to alternate port takes place
 	alternate_port=42;
 >
 ```
