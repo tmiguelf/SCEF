@@ -234,10 +234,10 @@ Error WriteVersion(stream_encoder& p_encoder, uint16_t p_version)
 	{
 		return static_cast<Error>(ret);
 	}
-
+	core::to_char_dec_max_digits_v<uint16_t>;
 	{
 		char8_t t_buff[5];
-		ret = p_encoder.put(std::u8string_view{t_buff, core::to_chars<char8_t>(p_version, t_buff)});
+		ret = p_encoder.put(std::u8string_view{t_buff, core::to_chars(p_version, t_buff)});
 		if(ret != stream_error::None)
 		{
 			return static_cast<Error>(ret);

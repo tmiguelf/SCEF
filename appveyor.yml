@@ -3,6 +3,7 @@ version: '{build}-{branch}'
 os: Visual Studio 2019 Preview
 
 install:
+    - wsl lsb_release -a
     - wsl sudo sed --in-place 's/focal/groovy/g' /etc/apt/sources.list
     - wsl sudo apt update
     - wsl sudo apt install -y g++

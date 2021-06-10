@@ -488,7 +488,7 @@ public:
 	/// \brief Converts the value to UTF8
 	[[nodiscard]] std::u8string value_UTF8() const;
 
-	template<core::from_chars_supported_c T>
+	template<core::char_conv_dec_supported_c T>
 	[[nodiscard]] inline ::core::from_chars_result<T> value_as_num() const { return core::from_chars<T>(_value); };
 
 	void set_value(std::u32string_view p_text);

@@ -502,7 +502,7 @@ static Error ReadEscapeSequence(ReaderFlow& p_flow, std::u32string& p_out)
 				stream_error ret = decoder.read_while(loadEscapeQuad, &thelper);
 				if(thelper.count == 4)
 				{
-					p_out.push_back(reinterpret_cast<char32_t&>(core::from_hex_chars<uint32_t>({thelper.buff, 4}).value()));
+					p_out.push_back(reinterpret_cast<char32_t&>(core::from_chars_hex<uint32_t>({thelper.buff, 4}).value()));
 					break;
 				}
 				if(ret != stream_error::None)
@@ -528,7 +528,7 @@ static Error ReadEscapeSequence(ReaderFlow& p_flow, std::u32string& p_out)
 						break;
 					case warningBehaviour::Default:
 					case warningBehaviour::Accept:
-						p_out.push_back(reinterpret_cast<char32_t&>(core::from_hex_chars<uint32_t>({thelper.buff, thelper.count}).value()));
+						p_out.push_back(reinterpret_cast<char32_t&>(core::from_chars_hex<uint32_t>({thelper.buff, thelper.count}).value()));
 						break;
 					case warningBehaviour::Abort:
 					default:
@@ -543,7 +543,7 @@ static Error ReadEscapeSequence(ReaderFlow& p_flow, std::u32string& p_out)
 				stream_error ret = decoder.read_while(loadEscapeOcta, &thelper);
 				if(thelper.count == 8)
 				{
-					p_out.push_back(reinterpret_cast<char32_t&>(core::from_hex_chars<uint32_t>({thelper.buff, 8}).value()));
+					p_out.push_back(reinterpret_cast<char32_t&>(core::from_chars_hex<uint32_t>({thelper.buff, 8}).value()));
 					break;
 				}
 				if(ret != stream_error::None)
@@ -569,7 +569,7 @@ static Error ReadEscapeSequence(ReaderFlow& p_flow, std::u32string& p_out)
 						break;
 					case warningBehaviour::Default:
 					case warningBehaviour::Accept:
-						p_out.push_back(reinterpret_cast<char32_t&>(core::from_hex_chars<uint32_t>({thelper.buff, thelper.count}).value()));
+						p_out.push_back(reinterpret_cast<char32_t&>(core::from_chars_hex<uint32_t>({thelper.buff, thelper.count}).value()));
 						break;
 					case warningBehaviour::Abort:
 					default:
@@ -597,7 +597,7 @@ static Error ReadEscapeSequence(ReaderFlow& p_flow, std::u32string& p_out)
 					buff[1]= temp.value();
 					if(core::is_xdigit(temp.value()))
 					{
-						p_out.push_back(reinterpret_cast<char32_t&>(core::from_hex_chars<uint32_t>({buff, 2}).value()));
+						p_out.push_back(reinterpret_cast<char32_t&>(core::from_chars_hex<uint32_t>({buff, 2}).value()));
 						break;
 					}
 					_p::Danger_Action::publicError(*twarn._error_context).SetErrorEscape(buff, 2);
@@ -613,7 +613,7 @@ static Error ReadEscapeSequence(ReaderFlow& p_flow, std::u32string& p_out)
 						break;
 					case warningBehaviour::Default:
 					case warningBehaviour::Accept:
-						p_out.push_back(reinterpret_cast<char32_t&>(core::from_hex_chars<uint32_t>({&tchar, 1}).value()));
+						p_out.push_back(reinterpret_cast<char32_t&>(core::from_chars_hex<uint32_t>({&tchar, 1}).value()));
 						break;
 					case warningBehaviour::Abort:
 					default:
@@ -2009,13 +2009,13 @@ static void EscapeNameSingle(std::u32string_view p_name, std::u32string& p_out)
 			default:
 				if(tchar < 32)
 				{
-					core::to_hex_chars_fix(static_cast<uint8_t>(tchar), std::span<char32_t, 2>{buff.data() + 1, 2});
+					core::to_chars_hex_fix(static_cast<uint8_t>(tchar), std::span<char32_t, 2>{buff.data() + 1, 2});
 					p_out.append(buff.data(), 3);
 				}
 				else if(tchar > 0xD7FF && tchar < 0xE000)
 				{
 					buff[1] = 'u';
-					core::to_hex_chars_fix(static_cast<uint16_t>(tchar), std::span<char32_t, 4>{buff.data() + 2, 4});
+					core::to_chars_hex_fix(static_cast<uint16_t>(tchar), std::span<char32_t, 4>{buff.data() + 2, 4});
 					p_out.append(buff.data(), 6);
 				}
 				else
@@ -2058,13 +2058,13 @@ static void EscapeNameDouble(std::u32string_view p_name, std::u32string& p_out)
 			default:
 				if(tchar < 32)
 				{
-					core::to_hex_chars_fix(static_cast<uint8_t>(tchar), std::span<char32_t, 2>{buff.data() + 1, 2});
+					core::to_chars_hex_fix(static_cast<uint8_t>(tchar), std::span<char32_t, 2>{buff.data() + 1, 2});
 					p_out.append(buff.data(), 3);
 				}
 				else if(tchar > 0xD7FF && tchar < 0xE000)
 				{
 					buff[1] = 'u';
-					core::to_hex_chars_fix(static_cast<uint16_t>(tchar), std::span<char32_t, 4>{buff.data() + 2, 4});
+					core::to_chars_hex_fix(static_cast<uint16_t>(tchar), std::span<char32_t, 4>{buff.data() + 2, 4});
 					p_out.append(buff.data(), 6);
 				}
 				else
