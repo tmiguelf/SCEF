@@ -30,7 +30,7 @@
 
 #include <CoreLib/Core_Alternate.hpp>
 
-#include "SCEF/scef_stream.hpp"
+#include <SCEF/scef_stream.hpp>
 
 namespace scef
 {

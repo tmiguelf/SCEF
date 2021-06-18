@@ -27,7 +27,7 @@
 
 #include <CoreLib/Core_String.hpp>
 
-#include "SCEF/scef_items.hpp"
+#include <SCEF/scef_items.hpp>
 #include "scef_encoder.hpp"
 #include "scef_danger_act_p.hpp"
 
