@@ -1980,9 +1980,9 @@ static inline constexpr bool CharNeedsEscape(char32_t p_char)
 }
 
 //TODO: Stream instead of copy
-static void EscapeNameSingle(std::u32string_view p_name, std::u32string& p_out)
+static void EscapeNameSingle(std::u32string_view p_name, const stream_encoder& p_encoder, std::u32string& p_out)
 {
-	std::array<char32_t, 6> buff;
+	std::array<char32_t, 10> buff;
 	p_out.clear();
 	p_out.reserve(p_name.size());
 	buff[0] = '^';
@@ -2012,11 +2012,25 @@ static void EscapeNameSingle(std::u32string_view p_name, std::u32string& p_out)
 					core::to_chars_hex_fix(static_cast<uint8_t>(tchar), std::span<char32_t, 2>{buff.data() + 1, 2});
 					p_out.append(buff.data(), 3);
 				}
-				else if(tchar > 0xD7FF && tchar < 0xE000)
+				else if(p_encoder.requires_escape(tchar))
 				{
-					buff[1] = 'u';
-					core::to_chars_hex_fix(static_cast<uint16_t>(tchar), std::span<char32_t, 4>{buff.data() + 2, 4});
-					p_out.append(buff.data(), 6);
+					if(tchar < 0x100)
+					{
+						core::to_chars_hex_fix(static_cast<uint8_t>(tchar), std::span<char32_t, 2>{buff.data() + 1, 2});
+						p_out.append(buff.data(), 3);
+					}
+					else if(tchar < 0x10000)
+					{
+						buff[1] = 'u';
+						core::to_chars_hex_fix(static_cast<uint16_t>(tchar), std::span<char32_t, 4>{buff.data() + 2, 4});
+						p_out.append(buff.data(), 6);
+					}
+					else
+					{
+						buff[1] = 'U';
+						core::to_chars_hex_fix(static_cast<uint32_t>(tchar), std::span<char32_t, 8>{buff.data() + 2, 8});
+						p_out.append(buff.data(), 10);
+					}
 				}
 				else
 				{
@@ -2028,9 +2042,9 @@ static void EscapeNameSingle(std::u32string_view p_name, std::u32string& p_out)
 }
 
 //TODO: Stream instead of copy
-static void EscapeNameDouble(std::u32string_view p_name, std::u32string& p_out)
+static void EscapeNameDouble(std::u32string_view p_name, const stream_encoder& p_encoder, std::u32string& p_out)
 {
-	std::array<char32_t, 6> buff;
+	std::array<char32_t, 10> buff;
 	p_out.clear();
 	p_out.reserve(p_name.size());
 	buff[0] = '^';
@@ -2061,11 +2075,25 @@ static void EscapeNameDouble(std::u32string_view p_name, std::u32string& p_out)
 					core::to_chars_hex_fix(static_cast<uint8_t>(tchar), std::span<char32_t, 2>{buff.data() + 1, 2});
 					p_out.append(buff.data(), 3);
 				}
-				else if(tchar > 0xD7FF && tchar < 0xE000)
+				else if(p_encoder.requires_escape(tchar))
 				{
-					buff[1] = 'u';
-					core::to_chars_hex_fix(static_cast<uint16_t>(tchar), std::span<char32_t, 4>{buff.data() + 2, 4});
-					p_out.append(buff.data(), 6);
+					if(tchar < 0x100)
+					{
+						core::to_chars_hex_fix(static_cast<uint8_t>(tchar), std::span<char32_t, 2>{buff.data() + 1, 2});
+						p_out.append(buff.data(), 3);
+					}
+					else if(tchar < 0x10000)
+					{
+						buff[1] = 'u';
+						core::to_chars_hex_fix(static_cast<uint16_t>(tchar), std::span<char32_t, 4>{buff.data() + 2, 4});
+						p_out.append(buff.data(), 6);
+					}
+					else
+					{
+						buff[1] = 'U';
+						core::to_chars_hex_fix(static_cast<uint32_t>(tchar), std::span<char32_t, 8>{buff.data() + 2, 8});
+						p_out.append(buff.data(), 10);
+					}
 				}
 				else
 				{
@@ -2076,26 +2104,24 @@ static void EscapeNameDouble(std::u32string_view p_name, std::u32string& p_out)
 	}
 }
 
-static bool NameNeedsEscape(std::u32string_view p_name)
+static bool NameNeedsEscape(std::u32string_view p_name, const stream_encoder& p_encoder)
 {
 	if(p_name.empty()) return true;
-	const char32_t *it, *it_end;
-	it		= p_name.data();
-	it_end	= it + p_name.size();
-	for(; it < it_end; ++it)
+	for(char32_t tchar : p_name)
 	{
-		if(CharNeedsEscape(*it))
+		if(CharNeedsEscape(tchar))
 		{
 			return true;
 		}
 	}
-	return false;
+
+	return p_encoder.requires_escape(p_name);
 }
 
 
-static inline bool WriteChar(WriterFlow& p_flow, char32_t p_char)
+static inline bool WriteControl(WriterFlow& p_flow, char8_t p_char)
 {
-	stream_error t_err = p_flow.m_encoder.put(p_char);
+	stream_error t_err = p_flow.m_encoder.put_control(p_char);
 	if(t_err != stream_error::None)
 	{
 		_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).SetPlainError(static_cast<Error>(t_err));
@@ -2108,23 +2134,23 @@ static inline bool WriteChar(WriterFlow& p_flow, char32_t p_char)
 bool WriteNameAuto(WriterFlow& p_flow, std::u32string_view p_name)
 {
 	stream_error t_err;
-	if(NameNeedsEscape(p_name))
+	if(NameNeedsEscape(p_name, p_flow.m_encoder))
 	{
 		std::u32string t_escape;
-		t_err = p_flow.m_encoder.put(U'\'');
+		t_err = p_flow.m_encoder.put_control(u8'\'');
 		if(t_err == stream_error::None)
 		{
-			EscapeNameSingle(p_name, t_escape);
-			t_err = p_flow.m_encoder.put(t_escape);
+			EscapeNameSingle(p_name, p_flow.m_encoder, t_escape);
+			t_err = p_flow.m_encoder.put_sequence(t_escape);
 			if(t_err == stream_error::None)
 			{
-				t_err = p_flow.m_encoder.put(U'\'');
+				t_err = p_flow.m_encoder.put_control(u8'\'');
 			}
 		}
 	}
 	else
 	{
-		t_err = p_flow.m_encoder.put(p_name);
+		t_err = p_flow.m_encoder.put_sequence(p_name);
 	}
 	if(t_err != stream_error::None)
 	{
@@ -2141,46 +2167,46 @@ bool WriteNamePrefered(WriterFlow& p_flow, std::u32string_view p_name, Quotation
 	switch(p_quoteMode)
 	{
 		case QuotationMode::singlemark:
-			t_err = p_flow.m_encoder.put(U'\'');
+			t_err = p_flow.m_encoder.put_control(u8'\'');
 			if(t_err == stream_error::None)
 			{
-				EscapeNameSingle(p_name, t_escape);
-				t_err = p_flow.m_encoder.put(t_escape);
+				EscapeNameSingle(p_name, p_flow.m_encoder, t_escape);
+				t_err = p_flow.m_encoder.put_sequence(t_escape);
 				if(t_err == stream_error::None)
 				{
-					t_err = p_flow.m_encoder.put(U'\'');
+					t_err = p_flow.m_encoder.put_control(u8'\'');
 				}
 			}
 			break;
 		case QuotationMode::doublemark:
-			t_err = p_flow.m_encoder.put(U'\"');
+			t_err = p_flow.m_encoder.put_control(u8'\"');
 			if(t_err == stream_error::None)
 			{
-				EscapeNameDouble(p_name, t_escape);
-				t_err = p_flow.m_encoder.put(t_escape);
+				EscapeNameDouble(p_name, p_flow.m_encoder, t_escape);
+				t_err = p_flow.m_encoder.put_sequence(t_escape);
 				if(t_err == stream_error::None)
 				{
-					t_err = p_flow.m_encoder.put(U'\"');
+					t_err = p_flow.m_encoder.put_control(u8'\"');
 				}
 			}
 			break;
 		default:	//standard
-			if(NameNeedsEscape(p_name))
+			if(NameNeedsEscape(p_name, p_flow.m_encoder))
 			{
-				t_err = p_flow.m_encoder.put(U'\'');
+				t_err = p_flow.m_encoder.put_control(u8'\'');
 				if(t_err == stream_error::None)
 				{
-					EscapeNameSingle(p_name, t_escape);
-					t_err = p_flow.m_encoder.put(t_escape);
+					EscapeNameSingle(p_name, p_flow.m_encoder, t_escape);
+					t_err = p_flow.m_encoder.put_sequence(t_escape);
 					if(t_err == stream_error::None)
 					{
-						t_err = p_flow.m_encoder.put(U'\'');
+						t_err = p_flow.m_encoder.put_control(u8'\'');
 					}
 				}
 			}
 			else
 			{
-				t_err = p_flow.m_encoder.put(p_name);
+				t_err = p_flow.m_encoder.put_sequence(p_name);
 			}
 			break;
 	}
@@ -2215,7 +2241,7 @@ static inline bool WriteSpacing(WriterFlow& p_flow, const _p::lineSpace& p_spaci
 {
 	if(!p_spacing.spacing().empty())
 	{
-		stream_error t_err = p_flow.m_encoder.put(p_spacing.spacing());
+		stream_error t_err = p_flow.m_encoder.put_flat(p_spacing.spacing());
 		if(t_err != stream_error::None)
 		{
 			_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).SetPlainError(static_cast<Error>(t_err));
@@ -2227,10 +2253,10 @@ static inline bool WriteSpacing(WriterFlow& p_flow, const _p::lineSpace& p_spaci
 
 static inline bool WriteAutoTabulation(WriterFlow& p_flow, uint8_t p_level)
 {
-	if(!WriteChar(p_flow, U'\n')) return false;
+	if(!WriteControl(p_flow, u8'\n')) return false;
 	for(uint8_t it = 0; it < p_level; ++it)
 	{
-		if(!WriteChar(p_flow, U'\t')) return false;
+		if(!WriteControl(p_flow, u8'\t')) return false;
 	}
 	return true;
 }
@@ -2241,26 +2267,26 @@ static inline bool WriteComment(WriterFlow& p_flow, const comment& p_comment)
 	size_t pos = str.find(U'\n');
 	if(pos != std::u32string_view::npos)
 	{
-		if(!WriteChar(p_flow, U'#')) return false; //open comment
+		if(!WriteControl(p_flow, u8'#')) return false; //open comment
 		if(pos)
 		{
 			std::u32string_view segment = str.substr(0, pos);
-			stream_error t_err = p_flow.m_encoder.put(segment);
+			stream_error t_err = p_flow.m_encoder.put_sequence(segment);
 			if(t_err != stream_error::None)
 			{
 				_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).SetPlainError(static_cast<Error>(t_err));
 				return false;
 			}
 		}
-		if(!WriteChar(p_flow, U'\n')) return false;
+		if(!WriteControl(p_flow, u8'\n')) return false;
 		str = str.substr(pos + 1);
 	}
 
-	if(!WriteChar(p_flow, U'#')) return false; //open comment
+	if(!WriteControl(p_flow, u8'#')) return false; //open comment
 
-	if(str.empty())
+	if(!str.empty())
 	{
-		stream_error t_err = p_flow.m_encoder.put(str);
+		stream_error t_err = p_flow.m_encoder.put_sequence(str);
 		if(t_err != stream_error::None)
 		{
 			_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).SetPlainError(static_cast<Error>(t_err));
@@ -2275,11 +2301,11 @@ static bool WriteGroupDefault(WriterFlow& p_flow, const group& p_group, uint8_t 
 {
 	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_group;
 
-	if(	!WriteChar(p_flow, U'<')	|| //open group
+	if(	!WriteControl(p_flow, u8'<')	|| //open group
 		!WriteSpacing(p_flow, p_group.m_preSpace) ||
 		!WriteNameOpional(p_flow, p_group.view_name(), p_group.quotation_mode()) ||
 		!WriteSpacing(p_flow, p_group.m_postSpace) ||
-		!WriteChar(p_flow, U':') //close header
+		!WriteControl(p_flow, u8':') //close header
 		) return false;
 
 	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_stack.push_back(&p_group);
@@ -2292,7 +2318,7 @@ static bool WriteGroupDefault(WriterFlow& p_flow, const group& p_group, uint8_t 
 	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_group;
 
 	//close object
-	return WriteChar(p_flow, U'>');
+	return WriteControl(p_flow, u8'>');
 }
 
 static bool WriteGroupAutoSpace(WriterFlow& p_flow, const group& p_group, uint8_t p_level)
@@ -2300,9 +2326,9 @@ static bool WriteGroupAutoSpace(WriterFlow& p_flow, const group& p_group, uint8_
 	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_group;
 
 	if(	!WriteAutoTabulation(p_flow, p_level) ||
-		!WriteChar(p_flow, U'<') || 	//open group
+		!WriteControl(p_flow, u8'<') || 	//open group
 		!WriteNameOpional(p_flow, p_group.view_name(), p_group.quotation_mode()) ||
-		!WriteChar(p_flow, U':') //close header
+		!WriteControl(p_flow, u8':') //close header
 		) return false;
 
 	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_stack.push_back(&p_group);
@@ -2315,16 +2341,16 @@ static bool WriteGroupAutoSpace(WriterFlow& p_flow, const group& p_group, uint8_
 	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_group;
 
 	//close group
-	return WriteChar(p_flow, U'>');
+	return WriteControl(p_flow, u8'>');
 }
 
 static bool WriteGroupNoSpace(WriterFlow& p_flow, const group& p_group, uint8_t p_level)
 {
 	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_group;
 
-	if(	!WriteChar(p_flow, U'<') || //open group
+	if(	!WriteControl(p_flow, u8'<') || //open group
 		!WriteNameOpional(p_flow, p_group.view_name(), p_group.quotation_mode()) ||
-		!WriteChar(p_flow, U':') //close header
+		!WriteControl(p_flow, u8':') //close header
 		) return false;
 
 	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_stack.push_back(&p_group);
@@ -2337,7 +2363,7 @@ static bool WriteGroupNoSpace(WriterFlow& p_flow, const group& p_group, uint8_t 
 	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_group;
 
 	//close group
-	return WriteChar(p_flow, U'>');
+	return WriteControl(p_flow, u8'>');
 }
 
 static bool WriteKeyValueDefault(WriterFlow& p_flow, const keyedValue& p_key, uint8_t /*p_level*/)
@@ -2355,14 +2381,14 @@ static bool WriteKeyValueDefault(WriterFlow& p_flow, const keyedValue& p_key, ui
 	}
 
 	if(	!WriteSpacing(p_flow, p_key.m_preSpace) ||
-		!WriteChar(p_flow, U'=') ||
+		!WriteControl(p_flow, u8'=') ||
 		!WriteSpacing(p_flow, p_key.m_midSpace) ||
 		!WriteNameOpional(p_flow, p_key.view_value(), p_key.value_quotation_mode()) ||
 		!WriteSpacing(p_flow, p_key.m_postSpace)
 		) return false;
 
 	//close Key
-	return WriteChar(p_flow, U';');
+	return WriteControl(p_flow, u8';');
 }
 
 static bool WriteKeyValueAutoSpace(WriterFlow& p_flow, const keyedValue& p_key, uint8_t p_level)
@@ -2382,14 +2408,14 @@ static bool WriteKeyValueAutoSpace(WriterFlow& p_flow, const keyedValue& p_key, 
 	}
 	
 	//pre-spacing and sign 
-	if(!WriteChar(p_flow, U' ') ||
-		!WriteChar(p_flow, U'=')) return false;
+	if(!WriteControl(p_flow, u8' ') ||
+		!WriteControl(p_flow, u8'=')) return false;
 
 	if(p_flow.m_autoQuote)
 	{
 		if(!p_key.value().empty())
 		{
-			if(	!WriteChar(p_flow, U' ') ||
+			if(	!WriteControl(p_flow, u8' ') ||
 				!WriteNameAuto(p_flow, p_key.view_value())
 				) return false;
 		}
@@ -2397,14 +2423,14 @@ static bool WriteKeyValueAutoSpace(WriterFlow& p_flow, const keyedValue& p_key, 
 	else
 	{	if(!p_key.value().empty() || p_key.value_quotation_mode() != QuotationMode::standard)
 		{
-			if(	!WriteChar(p_flow, U' ') ||
+			if(	!WriteControl(p_flow, u8' ') ||
 				!WriteNamePrefered(p_flow, p_key.view_value(), p_key.value_quotation_mode())
 				) return false;
 		}
 	}
 
 	//close Key
-	return WriteChar(p_flow, U';');
+	return WriteControl(p_flow, u8';');
 }
 
 static bool WriteKeyValueNoSpace(WriterFlow& p_flow, const keyedValue& p_key, uint8_t /*p_level*/)
@@ -2421,12 +2447,12 @@ static bool WriteKeyValueNoSpace(WriterFlow& p_flow, const keyedValue& p_key, ui
 		if(!WriteNamePrefered(p_flow, p_key.view_name(), p_key.quotation_mode())) return false;
 	}
 
-	if(	!WriteChar(p_flow, U'=') ||
+	if(	!WriteControl(p_flow, u8'=') ||
 		!WriteNameOpional(p_flow, p_key.view_value(), p_key.value_quotation_mode())
 		) return false;
 
 	//close Key
-	return WriteChar(p_flow, U';');
+	return WriteControl(p_flow, u8';');
 }
 
 static bool WriteSingletDefault(WriterFlow& p_flow, const singlet& p_singlet, uint8_t /*p_level*/)
@@ -2446,7 +2472,7 @@ static bool WriteSingletDefault(WriterFlow& p_flow, const singlet& p_singlet, ui
 	if(!WriteSpacing(p_flow, p_singlet.m_postSpace)) return false;
 
 	//close Key
-	return WriteChar(p_flow, U';');
+	return WriteControl(p_flow, u8';');
 }
 
 static bool WriteSingletAutoSpace(WriterFlow& p_flow, const singlet& p_singlet, uint8_t p_level)
@@ -2466,7 +2492,7 @@ static bool WriteSingletAutoSpace(WriterFlow& p_flow, const singlet& p_singlet, 
 	}
 
 	//close Key
-	return WriteChar(p_flow, U';');
+	return WriteControl(p_flow, u8';');
 }
 
 static bool WriteSingletNoSpace(WriterFlow& p_flow, const singlet& p_singlet, uint8_t /*p_level*/)
@@ -2484,7 +2510,7 @@ static bool WriteSingletNoSpace(WriterFlow& p_flow, const singlet& p_singlet, ui
 	}
 
 	//close singlet
-	return WriteChar(p_flow, U';');
+	return WriteControl(p_flow, u8';');
 }
 
 static bool WriteSpacer(WriterFlow& p_flow, const spacer& p_spacer)
@@ -2494,11 +2520,11 @@ static bool WriteSpacer(WriterFlow& p_flow, const spacer& p_spacer)
 	//add new lines
 	for(uint64_t it = 0, n_lines = p_spacer.num_lines(); it < n_lines; ++it)
 	{
-		if(!WriteChar(p_flow, U'\n')) return false;
+		if(!WriteControl(p_flow, u8'\n')) return false;
 	}
 
 	//add inline space
-	stream_error t_err = p_flow.m_encoder.put(p_spacer.flat_spacing());
+	stream_error t_err = p_flow.m_encoder.put_flat(p_spacer.flat_spacing());
 	if(t_err != stream_error::None)
 	{
 		_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).SetPlainError(static_cast<Error>(t_err));
@@ -2512,7 +2538,7 @@ static bool WriteSpacerNewLineOnly(WriterFlow& p_flow, const spacer& p_spacer)
 	//add new lines
 	for(uint64_t it = 0, n_lines = p_spacer.num_lines(); it < n_lines; ++it)
 	{
-		if(!WriteChar(p_flow, U'\n'))
+		if(!WriteControl(p_flow, u8'\n'))
 		{
 			_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_spacer;
 			return false;
@@ -2531,7 +2557,7 @@ static bool WriteCommentNoSpace(WriterFlow& p_flow, const comment& p_comment)
 {
 	_p::Danger_Action::publicError(*p_flow.m_warnDef._error_context).m_criticalItem = &p_comment;
 	//force new line
-	return WriteComment(p_flow, p_comment) && WriteChar(p_flow, U'\n');
+	return WriteComment(p_flow, p_comment) && WriteControl(p_flow, u8'\n');
 }
 
 static bool WriteListAll(WriterFlow& p_flow, const ItemList& p_list, uint8_t p_level)
@@ -2621,17 +2647,17 @@ static bool WriteListAutoSpace(WriterFlow& p_flow, const ItemList& p_list, uint8
 					//inline comment?
 					if(b_lastRelevant && tproxy->line() == t_lastLine)
 					{
-						if(!WriteChar(p_flow, U' ')) return false;
+						if(!WriteControl(p_flow, u8' ')) return false;
 					}
 					else
 					{
 						//new line commnt
-						if(!WriteChar(p_flow, U'\n')) return false;
+						if(!WriteControl(p_flow, u8'\n')) return false;
 
 						//add tabs
 						for(uint8_t itl = 0; itl < p_level; ++itl)
 						{
-							if(!WriteChar(p_flow, U'\t')) return false;
+							if(!WriteControl(p_flow, u8'\t')) return false;
 						}
 
 					}
@@ -2661,12 +2687,12 @@ static bool WriteListAutoSpace(WriterFlow& p_flow, const ItemList& p_list, uint8
 
 	if(b_hasitem)
 	{
-		if(!WriteChar(p_flow, U'\n')) return false;
+		if(!WriteControl(p_flow, u8'\n')) return false;
 
 		//add tabs
 		for(uint8_t i = 1; i < p_level; ++i)
 		{
-			if(!WriteChar(p_flow, U'\t')) return false;
+			if(!WriteControl(p_flow, u8'\t')) return false;
 		}
 	}
 
@@ -2808,11 +2834,11 @@ static bool WriteListAutoNoComment(WriterFlow& p_flow, const ItemList& p_list, u
 	if(b_hasitem)
 	{
 		//new line
-		if(!WriteChar(p_flow, U'\n')) return false;
+		if(!WriteControl(p_flow, u8'\n')) return false;
 		//add tabs
 		for(uint8_t i = 1; i < p_level; ++i)
 		{
-			if(!WriteChar(p_flow, U'\t')) return false;
+			if(!WriteControl(p_flow, u8'\t')) return false;
 		}
 	}
 	return true;

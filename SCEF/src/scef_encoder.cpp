@@ -412,125 +412,119 @@ stream_decoder::result_t Stream_UCS4BE_Decoder_s::v_get_char()
 //---- Encoders ----
 
 //======== ======== class:  ======== ========
-stream_error Stream_ANSI_Encoder::put(char32_t p_char)
+stream_error Stream_ANSI_Encoder::put_control(char8_t p_char)
 {
-	if(p_char > 0xFF) return stream_error::BadEncoding;
-	char8_t temp = static_cast<char8_t>(p_char);
-	return m_writer.write(&temp, 1);
+	return m_writer.write(&p_char, 1);
 }
 
-stream_error Stream_ANSI_Encoder::put(std::u32string_view p_string)
+stream_error Stream_ANSI_Encoder::put_sequence(std::u32string_view p_string)
 {
 	for(char32_t tchar : p_string)
 	{
-		if(tchar > 0xFF) return stream_error::BadEncoding;
-		char8_t temp = static_cast<char8_t>(tchar);
+		const char8_t temp = static_cast<char8_t>(tchar);
 		if(m_writer.write(&temp, 1) != stream_error::None) return stream_error::Unable2Write;
 	}
 	return stream_error::None;
 }
 
-stream_error Stream_ANSI_Encoder::put(std::u8string_view p_string)
+stream_error Stream_ANSI_Encoder::put_flat(std::u8string_view p_string)
 {
 	return m_writer.write(p_string.data(), p_string.size());
 }
 
-
-//======== ======== class:  ======== ========
-stream_error Stream_UTF8_Encoder::put(char32_t p_char)
+bool Stream_ANSI_Encoder::requires_escape(std::u32string_view p_string) const
 {
-	char8_t temp[7];
-	return m_writer.write(temp, core::encode_UTF8(p_char, temp));
+	for(const char32_t tchar : p_string)
+	{
+		if(tchar > 0xFF) return true;
+	}
+	return false;
 }
 
-stream_error Stream_UTF8_Encoder::put(std::u32string_view p_string)
+bool Stream_ANSI_Encoder::requires_escape(char32_t p_char) const
 {
-	char8_t temp[7];
-	for(char32_t tchar : p_string)
-	{
-		if(m_writer.write(temp, core::encode_UTF8(tchar, temp)) != stream_error::None) return stream_error::Unable2Write;
-	}
-	return stream_error::None;
-}
-
-stream_error Stream_UTF8_Encoder::put(std::u8string_view p_string)
-{
-	for(char8_t tchar : p_string)
-	{
-		if(tchar < 0x00000800)
-		{
-			if(m_writer.write(&tchar, 1) != stream_error::None) return stream_error::Unable2Write;
-		}
-		else
-		{
-			char8_t temp[2] {static_cast<char8_t>((tchar >>  6  ) | 0xC0), static_cast<char8_t>((tchar & 0x3F ) | 0x80)};
-			if(m_writer.write(temp, 2) != stream_error::None) return stream_error::Unable2Write;
-		}
-	}
-	return stream_error::None;
+	return p_char > 0xFF;
 }
 
 
 //======== ======== class:  ======== ========
-stream_error Stream_UTF8_Encoder_s::put(char32_t p_char)
+stream_error Stream_UTF8_Encoder::put_control(char8_t p_char)
 {
-	if(!core::UNICODE_Compliant(p_char)) return stream_error::BadEncoding;
-
-	char8_t temp[7];
-	return m_writer.write(temp, core::encode_UTF8(p_char, temp));
+	return m_writer.write(&p_char, 1);
 }
 
-stream_error Stream_UTF8_Encoder_s::put(std::u32string_view p_string)
+stream_error Stream_UTF8_Encoder::put_sequence(std::u32string_view p_string)
 {
-	if(!core::UCS4_UNICODE_Compliant(p_string)) return stream_error::BadEncoding;
-	char8_t temp[7];
+	std::array<char8_t, 4> temp;
 	for(char32_t tchar : p_string)
 	{
-		if(m_writer.write(temp, core::encode_UTF8(tchar, temp)) != stream_error::None) return stream_error::Unable2Write;
+		if(m_writer.write(temp.data(), core::encode_UTF8(tchar, temp)) != stream_error::None) return stream_error::Unable2Write;
 	}
 	return stream_error::None;
 }
 
-stream_error Stream_UTF8_Encoder_s::put(std::u8string_view p_string)
+stream_error Stream_UTF8_Encoder::put_flat(std::u8string_view p_string)
 {
-	for(char8_t tchar : p_string)
-	{
-		if(tchar < 0x00000800)
-		{
-			if(m_writer.write(&tchar, 1) != stream_error::None) return stream_error::Unable2Write;
-		}
-		else
-		{
-			char8_t temp[2] {static_cast<char8_t>((tchar >>  6  ) | 0xC0), static_cast<char8_t>((tchar & 0x3F ) | 0x80)};
-			if(m_writer.write(temp, 2) != stream_error::None) return stream_error::Unable2Write;
-		}
-	}
-	return stream_error::None;
+	return m_writer.write(p_string.data(), p_string.size());
 }
 
+bool Stream_UTF8_Encoder::requires_escape(std::u32string_view p_string) const
+{
+	for(const char32_t tchar : p_string)
+	{
+		if(tchar > 0x10FFFF) return true;
+	}
+	return false;
+}
+
+bool Stream_UTF8_Encoder::requires_escape(char32_t p_char) const
+{
+	return (p_char > 0x10FFFF);
+}
 
 //======== ======== class:  ======== ========
-stream_error Stream_UTF16LE_Encoder::put(char32_t p_char)
+stream_error Stream_UTF8_Encoder_s::put_control(char8_t p_char)
 {
-	if(!core::UNICODE_Compliant(p_char)) return stream_error::BadEncoding;
-
-	char16_t temp[2];
-	uint8_t ret = core::encode_UTF16(p_char, temp);
-
-	temp[0] = core::endian_host2little(temp[0]);
-	if(ret == 2)
-	{
-		temp[1] = core::endian_host2little(temp[1]);
-	}
-	return m_writer.write(temp, ret * sizeof(char16_t));
+	return m_writer.write(&p_char, 1);
 }
 
-stream_error Stream_UTF16LE_Encoder::put(std::u32string_view p_string)
+stream_error Stream_UTF8_Encoder_s::put_sequence(std::u32string_view p_string)
 {
-	if(!core::UCS4_UNICODE_Compliant(p_string)) return stream_error::BadEncoding;
+	std::array<char8_t, 4> temp;
 	for(char32_t tchar : p_string)
 	{
-		char16_t temp[2];
+		if(m_writer.write(temp.data(), core::encode_UTF8(tchar, temp)) != stream_error::None) return stream_error::Unable2Write;
+	}
+	return stream_error::None;
+}
+
+stream_error Stream_UTF8_Encoder_s::put_flat(std::u8string_view p_string)
+{
+	return m_writer.write(p_string.data(), p_string.size());
+}
+
+bool Stream_UTF8_Encoder_s::requires_escape(std::u32string_view p_string) const
+{
+	return !core::UCS4_UNICODE_Compliant(p_string);
+}
+
+bool Stream_UTF8_Encoder_s::requires_escape(char32_t p_char) const
+{
+	return !core::UNICODE_Compliant(p_char);
+}
+
+//======== ======== class:  ======== ========
+stream_error Stream_UTF16LE_Encoder::put_control(char8_t p_char)
+{
+	const char16_t temp = core::endian_host2little(static_cast<char16_t>(p_char));
+	return m_writer.write(&temp, sizeof(char16_t));
+}
+
+stream_error Stream_UTF16LE_Encoder::put_sequence(std::u32string_view p_string)
+{
+	for(char32_t tchar : p_string)
+	{
+		std::array<char16_t, 2> temp;
 		uint8_t ret = core::encode_UTF16(tchar, temp);
 
 		temp[0] = core::endian_host2little(temp[0]);
@@ -538,12 +532,12 @@ stream_error Stream_UTF16LE_Encoder::put(std::u32string_view p_string)
 		{
 			temp[1] = core::endian_host2little(temp[1]);
 		}
-		if(m_writer.write(temp, ret * sizeof(char16_t)) != stream_error::None) return stream_error::Unable2Write;
+		if(m_writer.write(temp.data(), ret * sizeof(char16_t)) != stream_error::None) return stream_error::Unable2Write;
 	}
 	return stream_error::None;
 }
 
-stream_error Stream_UTF16LE_Encoder::put(std::u8string_view p_string)
+stream_error Stream_UTF16LE_Encoder::put_flat(std::u8string_view p_string)
 {
 	for(char8_t tchar : p_string)
 	{
@@ -553,42 +547,40 @@ stream_error Stream_UTF16LE_Encoder::put(std::u8string_view p_string)
 	return stream_error::None;
 }
 
-
-//======== ======== class:  ======== ========
-stream_error Stream_UTF16BE_Encoder::put(char32_t p_char)
+bool Stream_UTF16LE_Encoder::requires_escape(std::u32string_view p_string) const
 {
-	if(!core::UNICODE_Compliant(p_char)) return stream_error::BadEncoding;
-
-	char16_t temp[2];
-	uint8_t ret = core::encode_UTF16(p_char, temp);
-
-	temp[0] = core::endian_host2big(temp[0]);
-	if(ret == 2)
-	{
-		temp[1] = core::endian_host2big(temp[1]);
-	}
-	return m_writer.write(temp, ret * sizeof(char16_t));
+	return !core::UCS4_UNICODE_Compliant(p_string);
+}
+bool Stream_UTF16LE_Encoder::requires_escape(char32_t p_char) const
+{
+	return !core::UNICODE_Compliant(p_char);
 }
 
-stream_error Stream_UTF16BE_Encoder::put(std::u32string_view p_string)
+//======== ======== class:  ======== ========
+stream_error Stream_UTF16BE_Encoder::put_control(char8_t p_char)
 {
-	if(!core::UCS4_UNICODE_Compliant(p_string)) return stream_error::BadEncoding;
+	const char16_t temp = core::endian_host2big(static_cast<char16_t>(p_char));
+	return m_writer.write(&temp, sizeof(char16_t));
+}
+
+stream_error Stream_UTF16BE_Encoder::put_sequence(std::u32string_view p_string)
+{
 	for(char32_t tchar : p_string)
 	{
-		char16_t temp[2];
-		uint8_t ret = core::encode_UTF16(tchar, temp);
+		std::array<char16_t, 2> temp;
+		const uint8_t ret = core::encode_UTF16(tchar, temp);
 
 		temp[0] = core::endian_host2big(temp[0]);
 		if(ret == 2)
 		{
 			temp[1] = core::endian_host2big(temp[1]);
 		}
-		if(m_writer.write(temp, ret * sizeof(char16_t)) != stream_error::None) return stream_error::Unable2Write;
+		if(m_writer.write(temp.data(), ret * sizeof(char16_t)) != stream_error::None) return stream_error::Unable2Write;
 	}
 	return stream_error::None;
 }
 
-stream_error Stream_UTF16BE_Encoder::put(std::u8string_view p_string)
+stream_error Stream_UTF16BE_Encoder::put_flat(std::u8string_view p_string)
 {
 	for(char8_t tchar : p_string)
 	{
@@ -598,15 +590,23 @@ stream_error Stream_UTF16BE_Encoder::put(std::u8string_view p_string)
 	return stream_error::None;
 }
 
-
-//======== ======== class:  ======== ========
-stream_error Stream_UCS4LE_Encoder::put(char32_t p_char)
+bool Stream_UTF16BE_Encoder::requires_escape(std::u32string_view p_string) const
 {
-	p_char = core::endian_host2little(p_char);
-	return m_writer.write(reinterpret_cast<void*>(&p_char), sizeof(char32_t));
+	return !core::UCS4_UNICODE_Compliant(p_string);
+}
+bool Stream_UTF16BE_Encoder::requires_escape(char32_t p_char) const
+{
+	return !core::UNICODE_Compliant(p_char);
 }
 
-stream_error Stream_UCS4LE_Encoder::put(std::u32string_view p_string)
+//======== ======== class:  ======== ========
+stream_error Stream_UCS4LE_Encoder::put_control(char8_t p_char)
+{
+	const char32_t tchar = core::endian_host2little(static_cast<char32_t>(p_char));
+	return m_writer.write(&tchar, sizeof(char32_t));
+}
+
+stream_error Stream_UCS4LE_Encoder::put_sequence(std::u32string_view p_string)
 {
 	for(char32_t tchar : p_string)
 	{
@@ -616,7 +616,7 @@ stream_error Stream_UCS4LE_Encoder::put(std::u32string_view p_string)
 	return stream_error::None;
 }
 
-stream_error Stream_UCS4LE_Encoder::put(std::u8string_view p_string)
+stream_error Stream_UCS4LE_Encoder::put_flat(std::u8string_view p_string)
 {
 	for(char8_t lchar : p_string)
 	{
@@ -626,18 +626,26 @@ stream_error Stream_UCS4LE_Encoder::put(std::u8string_view p_string)
 	return stream_error::None;
 }
 
-
-//======== ======== class:  ======== ========
-stream_error Stream_UCS4LE_Encoder_s::put(char32_t p_char)
+bool Stream_UCS4LE_Encoder::requires_escape(std::u32string_view) const
 {
-	if(!core::UNICODE_Compliant(p_char)) return stream_error::BadEncoding;
-	p_char = core::endian_host2little(p_char);
-	return m_writer.write(reinterpret_cast<void*>(&p_char), sizeof(char32_t));
+	return false;
 }
 
-stream_error Stream_UCS4LE_Encoder_s::put(std::u32string_view p_string)
+bool Stream_UCS4LE_Encoder::requires_escape(char32_t) const
 {
-	if(!core::UCS4_UNICODE_Compliant(p_string)) return stream_error::BadEncoding;
+	return false;
+}
+
+//======== ======== class:  ======== ========
+stream_error Stream_UCS4LE_Encoder_s::put_control(char8_t p_char)
+{
+	const char32_t tchar = core::endian_host2little(static_cast<char32_t>(p_char));
+	return m_writer.write(&tchar, sizeof(char32_t));
+}
+
+
+stream_error Stream_UCS4LE_Encoder_s::put_sequence(std::u32string_view p_string)
+{
 	for(char32_t tchar : p_string)
 	{
 		tchar = core::endian_host2little(tchar);
@@ -646,72 +654,98 @@ stream_error Stream_UCS4LE_Encoder_s::put(std::u32string_view p_string)
 	return stream_error::None;
 }
 
-stream_error Stream_UCS4LE_Encoder_s::put(std::u8string_view p_string)
+stream_error Stream_UCS4LE_Encoder_s::put_flat(std::u8string_view p_string)
 {
-	for(char8_t lchar : p_string)
+	for(char8_t lchar: p_string)
 	{
-		char32_t tchar = core::endian_host2little(static_cast<char32_t>(lchar));
-		if(m_writer.write(reinterpret_cast<void*>(&tchar), sizeof(char32_t)) != stream_error::None) return stream_error::Unable2Write;
+		const char32_t tchar = core::endian_host2little(static_cast<char32_t>(lchar));
+		if(m_writer.write(&tchar, sizeof(char32_t)) != stream_error::None) return stream_error::Unable2Write;
 	}
 	return stream_error::None;
 }
 
+bool Stream_UCS4LE_Encoder_s::requires_escape(std::u32string_view p_string) const
+{
+	return !core::UCS4_UNICODE_Compliant(p_string);
+}
+
+bool Stream_UCS4LE_Encoder_s::requires_escape(char32_t p_char) const
+{
+	return !core::UNICODE_Compliant(p_char);
+}
 
 //======== ======== class:  ======== ========
-stream_error Stream_UCS4BE_Encoder::put(char32_t p_char)
+stream_error Stream_UCS4BE_Encoder::put_control(char8_t p_char)
 {
-	p_char = core::endian_host2big(p_char);
-	return m_writer.write(reinterpret_cast<void*>(&p_char), sizeof(char32_t));
+	const char32_t tchar = core::endian_host2big(static_cast<char32_t>(p_char));
+	return m_writer.write(&tchar, sizeof(char32_t));
 }
 
-stream_error Stream_UCS4BE_Encoder::put(std::u32string_view p_string)
+stream_error Stream_UCS4BE_Encoder::put_sequence(std::u32string_view p_string)
 {
-	for(char32_t tchar : p_string)
+	for(char32_t tchar: p_string)
 	{
 		tchar = core::endian_host2big(tchar);
-		if(m_writer.write(reinterpret_cast<void*>(&tchar), sizeof(char32_t)) != stream_error::None) return stream_error::Unable2Write;
+		if(m_writer.write(&tchar, sizeof(char32_t)) != stream_error::None) return stream_error::Unable2Write;
 	}
 	return stream_error::None;
 }
 
-stream_error Stream_UCS4BE_Encoder::put(std::u8string_view p_string)
+stream_error Stream_UCS4BE_Encoder::put_flat(std::u8string_view p_string)
 {
 	for(char8_t lchar : p_string)
 	{
-		char32_t tchar = core::endian_host2big(static_cast<char32_t>(lchar));
-		if(m_writer.write(reinterpret_cast<void*>(&tchar), sizeof(char32_t)) != stream_error::None) return stream_error::Unable2Write;
+		const char32_t tchar = core::endian_host2big(static_cast<char32_t>(lchar));
+		if(m_writer.write(&tchar, sizeof(char32_t)) != stream_error::None) return stream_error::Unable2Write;
 	}
 	return stream_error::None;
 }
 
+bool Stream_UCS4BE_Encoder::requires_escape(std::u32string_view) const
+{
+	return false;
+}
+
+bool Stream_UCS4BE_Encoder::requires_escape(char32_t) const
+{
+	return false;
+}
 
 //======== ======== class:  ======== ========
-stream_error Stream_UCS4BE_Encoder_s::put(char32_t p_char)
+stream_error Stream_UCS4BE_Encoder_s::put_control(char8_t p_char)
 {
-	if(!core::UNICODE_Compliant(p_char)) return stream_error::BadEncoding;
-	p_char = core::endian_host2big(p_char);
-	return m_writer.write(reinterpret_cast<void*>(&p_char), sizeof(char32_t));
+	const char32_t tchar = core::endian_host2big(static_cast<char32_t>(p_char));
+	return m_writer.write(&tchar, sizeof(char32_t));
 }
 
-stream_error Stream_UCS4BE_Encoder_s::put(std::u32string_view p_string)
+stream_error Stream_UCS4BE_Encoder_s::put_sequence(std::u32string_view p_string)
 {
-	if(!core::UCS4_UNICODE_Compliant(p_string)) return stream_error::BadEncoding;
-	for(char32_t tchar : p_string)
+	for(char32_t tchar: p_string)
 	{
 		tchar = core::endian_host2big(tchar);
-		if(m_writer.write(reinterpret_cast<void*>(&tchar), sizeof(char32_t)) != stream_error::None) return stream_error::Unable2Write;
+		if(m_writer.write(&tchar, sizeof(char32_t)) != stream_error::None) return stream_error::Unable2Write;
 	}
 	return stream_error::None;
 }
 
-stream_error Stream_UCS4BE_Encoder_s::put(std::u8string_view p_string)
+stream_error Stream_UCS4BE_Encoder_s::put_flat(std::u8string_view p_string)
 {
 	for(char8_t lchar : p_string)
 	{
-		char32_t tchar = core::endian_host2big(static_cast<char32_t>(lchar));
-		if(m_writer.write(reinterpret_cast<void*>(&tchar), sizeof(char32_t)) != stream_error::None) return stream_error::Unable2Write;
+		const char32_t tchar = core::endian_host2big(static_cast<char32_t>(lchar));
+		if(m_writer.write(&tchar, sizeof(char32_t)) != stream_error::None) return stream_error::Unable2Write;
 	}
 	return stream_error::None;
+}
+
+bool Stream_UCS4BE_Encoder_s::requires_escape(std::u32string_view p_string) const
+{
+	return !core::UCS4_UNICODE_Compliant(p_string);
+}
+
+bool Stream_UCS4BE_Encoder_s::requires_escape(char32_t p_char) const
+{
+	return !core::UNICODE_Compliant(p_char);
 }
 
 }	// namespace ENCODER_P

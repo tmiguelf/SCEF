@@ -228,22 +228,21 @@ constexpr std::u8string_view SCEF_SIG = u8"!SCEF:V=";
 
 Error WriteVersion(stream_encoder& p_encoder, uint16_t p_version)
 {
-	stream_error ret = p_encoder.put(SCEF_SIG);
+	stream_error ret = p_encoder.put_flat(SCEF_SIG);
 
 	if(ret != stream_error::None)
 	{
 		return static_cast<Error>(ret);
 	}
-	core::to_char_dec_max_digits_v<uint16_t>;
 	{
-		char8_t t_buff[5];
-		ret = p_encoder.put(std::u8string_view{t_buff, core::to_chars(p_version, t_buff)});
+		std::array<char8_t, core::to_chars_dec_max_digits_v<uint16_t>> t_buff;
+		ret = p_encoder.put_flat(std::u8string_view{t_buff.data(), core::to_chars(p_version, t_buff)});
 		if(ret != stream_error::None)
 		{
 			return static_cast<Error>(ret);
 		}
 	}
-	return static_cast<Error>(p_encoder.put(U'\n'));
+	return static_cast<Error>(p_encoder.put_control(U'\n'));
 }
 
 }	//namespace acef::format
