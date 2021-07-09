@@ -26,7 +26,7 @@
 #include "scef_format.hpp"
 
 #include <cstdint>
-#include <CoreLib/Core_String.hpp>
+#include <CoreLib/string/core_string_numeric.hpp>
 
 #include "scef_encoder.hpp"
 #include "scef_danger_act_p.hpp"

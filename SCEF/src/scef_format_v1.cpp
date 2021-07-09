@@ -25,7 +25,7 @@
 
 #include "scef_format_v1.hpp"
 
-#include <CoreLib/Core_String.hpp>
+#include <CoreLib/string/core_string_numeric.hpp>
 
 #include <SCEF/scef_items.hpp>
 #include "scef_encoder.hpp"

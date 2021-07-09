@@ -4,25 +4,25 @@ os: Visual Studio 2019 Preview
 
 install:
     - wsl lsb_release -a
-    - wsl sudo sed --in-place 's/focal/groovy/g' /etc/apt/sources.list
-    - wsl sudo apt update
-    - wsl sudo apt install -y g++
+#    - wsl sudo sed --in-place 's/focal/groovy/g' /etc/apt/sources.list
+#    - wsl sudo apt update
+#    - wsl sudo apt install -y g++
     - git submodule update --init --depth 1
 
 build: off
 
 build_script:
     - msbuild /t:Build /p:Configuration=Release "./SCEF.sln" -maxcpucount
-    - msbuild /t:Build /p:Configuration=WSL_Release "./SCEF.sln" -maxcpucount
+#    - msbuild /t:Build /p:Configuration=WSL_Release "./SCEF.sln" -maxcpucount
     - ps: copy "./SCEF/test/samples/sampleFile1.scef" "./Runtime/sampleFile1.scef"
 
 test_script:
     - '&"./Runtime/win_x64_Release/SCEF_test.exe" --gtest_output="xml:SCEF_result.xml"'
-    - wsl /mnt/c/projects/SCEF/Runtime/lin_x86_64_Release/SCEF_test.out --gtest_output="xml:SCEF_result_linux.xml"
+#    - wsl /mnt/c/projects/SCEF/Runtime/lin_x86_64_Release/SCEF_test.out --gtest_output="xml:SCEF_result_linux.xml"
 
 artifacts:
   - path: SCEF_result.xml
     name: test_results
-  - path: SCEF_result_linux.xml
-    name: test_results
+#  - path: SCEF_result_linux.xml
+#    name: test_results
 
