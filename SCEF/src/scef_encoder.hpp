@@ -97,11 +97,11 @@ public:
 
 namespace ENCODER_P
 {
-constexpr std::array BOM_UTF8		= {char8_t{0xEF}, char8_t{0xBB}, char8_t{0xBF}};
-constexpr std::array BOM_UTF16BE	= {char8_t{0xFE}, char8_t{0xFF}};
-constexpr std::array BOM_UTF16LE	= {char8_t{0xFF}, char8_t{0xFE}};
-constexpr std::array BOM_UCS4BE		= {char8_t{0x00}, char8_t{0x00}, char8_t{0xFE}, char8_t{0xFF}};
-constexpr std::array BOM_UCS4LE		= {char8_t{0xFF}, char8_t{0xFE}, char8_t{0x00}, char8_t{0x00}};
+[[maybe_unused]] constexpr std::array BOM_UTF8		= {char8_t{0xEF}, char8_t{0xBB}, char8_t{0xBF}};
+[[maybe_unused]] constexpr std::array BOM_UTF16BE	= {char8_t{0xFE}, char8_t{0xFF}};
+[[maybe_unused]] constexpr std::array BOM_UTF16LE	= {char8_t{0xFF}, char8_t{0xFE}};
+[[maybe_unused]] constexpr std::array BOM_UCS4BE	= {char8_t{0x00}, char8_t{0x00}, char8_t{0xFE}, char8_t{0xFF}};
+[[maybe_unused]] constexpr std::array BOM_UCS4LE	= {char8_t{0xFF}, char8_t{0xFE}, char8_t{0x00}, char8_t{0x00}};
 
 //---- Decoders ----
 
