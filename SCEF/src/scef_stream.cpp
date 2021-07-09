@@ -23,7 +23,7 @@
 ///		SOFTWARE.
 //======== ======== ======== ======== ======== ======== ======== ========
 
-#include "SCEF/scef_stream.hpp"
+#include <SCEF/scef_stream.hpp>
 
 #include <cstring>
 

@@ -38,7 +38,7 @@ using namespace core::literals;
 
 std::filesystem::path getAppPath()
 {
-	static std::filesystem::path path = core::applicationPath().parent_path();
+	static std::filesystem::path path = core::application_path().parent_path();
 	return path;
 }
 

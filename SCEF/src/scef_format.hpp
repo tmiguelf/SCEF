@@ -27,7 +27,7 @@
 
 #include <cstdint>
 
-#include "SCEF/SCEF.hpp"
+#include <SCEF/SCEF.hpp>
 
 namespace scef
 {

@@ -23,7 +23,7 @@
 ///		SOFTWARE.
 //======== ======== ======== ======== ======== ======== ======== ========
 
-#include "SCEF/scef_items.hpp"
+#include <SCEF/scef_items.hpp>
 
 
 namespace scef

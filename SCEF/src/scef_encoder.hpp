@@ -30,7 +30,7 @@
 
 #include <CoreLib/Core_Alternate.hpp>
 
-#include "SCEF/scef_stream.hpp"
+#include <SCEF/scef_stream.hpp>
 
 namespace scef
 {
@@ -87,18 +87,21 @@ public:
 	inline stream_encoder(base_ostreamer& p_writer): m_writer{p_writer}{}
 	virtual ~stream_encoder();
 
-	virtual stream_error put(char32_t p_char) = 0;
-	virtual stream_error put(std::u32string_view p_string) = 0;
-	virtual stream_error put(std::u8string_view p_string) = 0;
+	virtual stream_error put_control(char8_t p_char) = 0;
+	virtual stream_error put_sequence(std::u32string_view p_string) = 0;
+	virtual stream_error put_flat(std::u8string_view p_string) = 0;
+
+	virtual bool requires_escape(std::u32string_view p_string) const = 0;
+	virtual bool requires_escape(char32_t p_char) const = 0;
 };
 
 namespace ENCODER_P
 {
-constexpr std::array<char8_t, 3> BOM_UTF8		= {0xEF, 0xBB, 0xBF};
-constexpr std::array<char8_t, 2> BOM_UTF16BE	= {0xFE, 0xFF};
-constexpr std::array<char8_t, 2> BOM_UTF16LE	= {0xFF, 0xFE};
-constexpr std::array<char8_t, 4> BOM_UCS4BE		= {0x00, 0x00, 0xFE, 0xFF};
-constexpr std::array<char8_t, 4> BOM_UCS4LE		= {0xFF, 0xFE, 0x00, 0x00};
+constexpr std::array BOM_UTF8		= {char8_t{0xEF}, char8_t{0xBB}, char8_t{0xBF}};
+constexpr std::array BOM_UTF16BE	= {char8_t{0xFE}, char8_t{0xFF}};
+constexpr std::array BOM_UTF16LE	= {char8_t{0xFF}, char8_t{0xFE}};
+constexpr std::array BOM_UCS4BE		= {char8_t{0x00}, char8_t{0x00}, char8_t{0xFE}, char8_t{0xFF}};
+constexpr std::array BOM_UCS4LE		= {char8_t{0xFF}, char8_t{0xFE}, char8_t{0x00}, char8_t{0x00}};
 
 //---- Decoders ----
 
@@ -184,9 +187,12 @@ class Stream_ANSI_Encoder: public stream_encoder
 {
 public:
 	inline Stream_ANSI_Encoder(base_ostreamer& p_writer): stream_encoder(p_writer){}
-	stream_error put(char32_t p_char) override;
-	stream_error put(std::u32string_view p_string) override;
-	stream_error put(std::u8string_view p_string) override;
+	stream_error put_control(char8_t p_char) final;
+	stream_error put_sequence(std::u32string_view p_string) final;
+	stream_error put_flat(std::u8string_view p_string) final;
+
+	bool requires_escape(std::u32string_view p_string) const final;
+	bool requires_escape(char32_t p_char) const final;
 };
 
 //---- UTF8 ----
@@ -194,18 +200,24 @@ class Stream_UTF8_Encoder: public stream_encoder
 {
 public:
 	inline Stream_UTF8_Encoder(base_ostreamer& p_writer): stream_encoder(p_writer){}
-	stream_error put(char32_t p_char) override;
-	stream_error put(std::u32string_view p_string) override;
-	stream_error put(std::u8string_view p_string) override;
+	stream_error put_control(char8_t p_char) final;
+	stream_error put_sequence(std::u32string_view p_string) final;
+	stream_error put_flat(std::u8string_view p_string) final;
+
+	bool requires_escape(std::u32string_view p_string) const final;
+	bool requires_escape(char32_t p_char) const final;
 };
 
 class Stream_UTF8_Encoder_s: public stream_encoder //strict version
 {
 public:
 	inline Stream_UTF8_Encoder_s(base_ostreamer& p_writer): stream_encoder(p_writer){}
-	stream_error put(char32_t p_char) override;
-	stream_error put(std::u32string_view p_string) override;
-	stream_error put(std::u8string_view p_string) override;
+	stream_error put_control(char8_t p_char) final;
+	stream_error put_sequence(std::u32string_view p_string) final;
+	stream_error put_flat(std::u8string_view p_string) final;
+
+	bool requires_escape(std::u32string_view p_string) const final;
+	bool requires_escape(char32_t p_char) const final;
 };
 
 //---- UTF16 ----
@@ -213,18 +225,24 @@ class Stream_UTF16LE_Encoder: public stream_encoder
 {
 public:
 	inline Stream_UTF16LE_Encoder(base_ostreamer& p_writer): stream_encoder(p_writer){}
-	stream_error put(char32_t p_char) override;
-	stream_error put(std::u32string_view p_string) override;
-	stream_error put(std::u8string_view p_string) override;
+	stream_error put_control(char8_t p_char) final;
+	stream_error put_sequence(std::u32string_view p_string) final;
+	stream_error put_flat(std::u8string_view p_string) final;
+
+	bool requires_escape(std::u32string_view p_string) const final;
+	bool requires_escape(char32_t p_char) const final;
 };
 
 class Stream_UTF16BE_Encoder: public stream_encoder
 {
 public:
 	inline Stream_UTF16BE_Encoder(base_ostreamer& p_writer): stream_encoder(p_writer){}
-	stream_error put(char32_t p_char) override;
-	stream_error put(std::u32string_view p_string) override;
-	stream_error put(std::u8string_view p_string) override;
+	stream_error put_control(char8_t p_char) final;
+	stream_error put_sequence(std::u32string_view p_string) final;
+	stream_error put_flat(std::u8string_view p_string) final;
+
+	bool requires_escape(std::u32string_view p_string) const final;
+	bool requires_escape(char32_t p_char) const final;
 };
 
 //---- UCS4 ----
@@ -232,36 +250,48 @@ class Stream_UCS4LE_Encoder: public stream_encoder
 {
 public:
 	inline Stream_UCS4LE_Encoder(base_ostreamer& p_writer): stream_encoder(p_writer){}
-	stream_error put(char32_t p_char) override;
-	stream_error put(std::u32string_view p_string) override;
-	stream_error put(std::u8string_view p_string) override;
+	stream_error put_control(char8_t p_char) final;
+	stream_error put_sequence(std::u32string_view p_string) final;
+	stream_error put_flat(std::u8string_view p_string) final;
+
+	bool requires_escape(std::u32string_view p_string) const final;
+	bool requires_escape(char32_t p_char) const final;
 };
 
 class Stream_UCS4LE_Encoder_s: public stream_encoder //strict version
 {
 public:
 	inline Stream_UCS4LE_Encoder_s(base_ostreamer& p_writer): stream_encoder(p_writer){}
-	stream_error put(char32_t p_char) override;
-	stream_error put(std::u32string_view p_string) override;
-	stream_error put(std::u8string_view p_string) override;
+	stream_error put_control(char8_t p_char) final;
+	stream_error put_sequence(std::u32string_view p_string) final;
+	stream_error put_flat(std::u8string_view p_string) final;
+
+	bool requires_escape(std::u32string_view p_string) const final;
+	bool requires_escape(char32_t p_char) const final;
 };
 
 class Stream_UCS4BE_Encoder: public stream_encoder
 {
 public:
 	inline Stream_UCS4BE_Encoder(base_ostreamer& p_writer): stream_encoder(p_writer){}
-	stream_error put(char32_t p_char) override;
-	stream_error put(std::u32string_view p_string) override;
-	stream_error put(std::u8string_view p_string) override;
+	stream_error put_control(char8_t p_char) final;
+	stream_error put_sequence(std::u32string_view p_string) final;
+	stream_error put_flat(std::u8string_view p_string) final;
+
+	bool requires_escape(std::u32string_view p_string) const final;
+	bool requires_escape(char32_t p_char) const final;
 };
 
 class Stream_UCS4BE_Encoder_s: public stream_encoder //strict version
 {
 public:
 	inline Stream_UCS4BE_Encoder_s(base_ostreamer& p_writer): stream_encoder(p_writer){}
-	stream_error put(char32_t p_char) override;
-	stream_error put(std::u32string_view p_string) override;
-	stream_error put(std::u8string_view p_string) override;
+	stream_error put_control(char8_t p_char) final;
+	stream_error put_sequence(std::u32string_view p_string) final;
+	stream_error put_flat(std::u8string_view p_string) final;
+
+	bool requires_escape(std::u32string_view p_string) const final;
+	bool requires_escape(char32_t p_char) const final;
 };
 
 }	// namespace ENCODER_P

@@ -320,8 +320,6 @@ public:
 	void set_name		(std::u32string_view p_text);
 	void set_quotation_mode(QuotationMode p_mode);
 	void clear_name		();
-
-	[[nodiscard]] std::u8string name_UTF8() const;
 };
 
 /// \brief Wraps the property of an SCEF item having an inline spacing
@@ -485,10 +483,7 @@ public:
 	[[nodiscard]] const std::u32string&	value() const;
 	[[nodiscard]] std::u32string_view	view_value() const;
 
-	/// \brief Converts the value to UTF8
-	[[nodiscard]] std::u8string value_UTF8() const;
-
-	template<core::from_chars_supported_c T>
+	template<core::char_conv_dec_supported_c T>
 	[[nodiscard]] inline ::core::from_chars_result<T> value_as_num() const { return core::from_chars<T>(_value); };
 
 	void set_value(std::u32string_view p_text);
@@ -555,7 +550,6 @@ inline void						NamedItem::set_name				(std::u32string_view p_text)	{ _name = p
 inline QuotationMode			NamedItem::quotation_mode		() const						{ return _quotation_mode; }
 inline void						NamedItem::set_quotation_mode	(QuotationMode p_mode)			{ _quotation_mode = p_mode; }
 inline void						NamedItem::clear_name			()								{ _name.clear(); }
-inline std::u8string			NamedItem::name_UTF8			() const						{ return core::UCS4_to_UTF8(_name); }
 
 
 //======== ======== class lineSpace
@@ -629,7 +623,6 @@ inline itemProxy<keyedValue> keyedValue::make() { return itemProxy<keyedValue>{n
 inline std::u32string&			keyedValue::value()									{ return _value; }
 inline const std::u32string&	keyedValue::value() const 							{ return _value; }
 inline std::u32string_view		keyedValue::view_value() const						{ return _value; }
-inline std::u8string			keyedValue::value_UTF8() const						{ return core::UCS4_to_UTF8(_value); }
 inline void						keyedValue::set_value(std::u32string_view p_text)	{ _value = p_text; }
 
 inline QuotationMode	keyedValue::value_quotation_mode	() const				{ return _value_quotation_mode; }
