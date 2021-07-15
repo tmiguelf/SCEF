@@ -1,4 +1,5 @@
-Build status: [![Build status](https://ci.appveyor.com/api/projects/status/5steahi2rot36drj/branch/master?svg=true)](https://ci.appveyor.com/project/tmiguelf/scef/branch/master)
+Build status: 
+#### CI Suspended until CI tools are updated to the latest copilers
 
 # SCEF
 	Simple Configuration Exchange Format
