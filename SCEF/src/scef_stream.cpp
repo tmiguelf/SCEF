@@ -75,6 +75,62 @@ stream_error std_ostream::write(const void* p_buffer, uintptr_t p_size)
 	return stream_error::Unable2Write;
 }
 
+//======== ======== class: file_istream ======== ========
+file_istream::file_istream(core::file_read& p_streamer): m_file{p_streamer}
+{
+	_size = p_streamer.size();
+}
+
+uintptr_t file_istream::read(void* p_buffer, uintptr_t p_size)
+{
+	return m_file.read_unlocked(p_buffer, p_size);
+}
+
+stream_error file_istream::stat() const
+{
+	if(m_file.good())
+	{
+		return stream_error::None;
+	}
+	if(m_file.error())
+	{
+		return stream_error::Unable2Read;
+	}
+	if(m_file.eof())
+	{
+		return stream_error::Control_EndOfStream;
+	}
+	return stream_error::Unable2Read;
+}
+
+uint64_t file_istream::pos() const
+{
+	return static_cast<uint64_t>(m_file.pos());
+}
+
+void file_istream::set_pos(uint64_t p_pos)
+{
+	m_file.seek(static_cast<int64_t>(p_pos));
+}
+
+//======== ======== class: file_ostream ======== ========
+stream_error file_ostream::write(const void* p_buffer, uintptr_t p_size)
+{
+	if(m_file.write(p_buffer, p_size) == p_size)
+	{
+		return stream_error::None;
+	}
+	if(m_file.error())
+	{
+		return stream_error::Unable2Read;
+	}
+	if(m_file.eof())
+	{
+		return stream_error::Control_EndOfStream;
+	}
+	return stream_error::Unable2Read;
+}
+
 //======== ======== class: buffer_istream ======== ========
 buffer_istream::buffer_istream(const void* p_first, const void* p_last)
 	: _first{p_first}

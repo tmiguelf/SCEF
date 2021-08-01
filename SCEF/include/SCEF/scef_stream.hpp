@@ -28,6 +28,8 @@
 #include <cstdint>
 #include <istream>
 #include <ostream>
+#include <filesystem>
+#include <CoreLib/Core_File.hpp>
 
 namespace scef
 {
@@ -77,7 +79,7 @@ public:
 };
 
 
-//======== ======== ======== istreamer ======== ======== ========
+//======== ======== ======== std::stream ======== ======== ========
 
 class std_istream: public base_istreamer
 {
@@ -103,6 +105,36 @@ public:
 	stream_error write(const void* p_buffer, uintptr_t p_size) override;
 };
 
+
+//======== ======== ======== core::file ======== ======== ========
+
+class file_istream: public base_istreamer
+{
+private:
+	core::file_read& m_file;
+
+public:
+	file_istream(core::file_read& p_streamer);
+
+	uintptr_t read(void* p_buffer, uintptr_t p_size) override;
+	stream_error stat() const override;
+
+	uint64_t pos() const override;
+	void set_pos(uint64_t p_pos) override;
+};
+
+class file_ostream: public base_ostreamer
+{
+private:
+	core::file_write& m_file;
+
+public:
+	inline file_ostream(core::file_write& p_streamer): m_file{p_streamer} {}
+	stream_error write(const void* p_buffer, uintptr_t p_size) override;
+};
+
+
+//======== ======== ======== generic ======== ======== ========
 class buffer_istream: public base_istreamer
 {
 private:

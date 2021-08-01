@@ -29,6 +29,7 @@
 #include <fstream>
 
 #include <CoreLib/Core_Endian.hpp>
+#include <CoreLib/Core_File.hpp>
 
 #include "scef_encoder.hpp"
 #include "scef_format.hpp"
@@ -88,11 +89,11 @@ void document::clear()
 
 Error document::load(const std::filesystem::path& p_file, Flag p_flags, _warning_callback p_warning_callback, void* p_user_context)
 {
-	std::ifstream f_reader;
-	f_reader.open(p_file, std::ios_base::in | std::ios_base::binary);
+	core::file_read f_reader;
+	f_reader.open(p_file);
 	if(f_reader.is_open())
 	{
-		std_istream t_reader{f_reader};
+		file_istream t_reader{f_reader};
 		return load(t_reader, p_flags, p_warning_callback, p_user_context);
 	}
 	m_last_error.clear();
@@ -112,11 +113,11 @@ Error document::save(const std::filesystem::path& p_file, Flag p_flags, uint16_t
 		return Error::UnsuportedVersion;
 	}
 
-	std::ofstream f_writer;
-	f_writer.open(p_file, std::ios_base::out | std::ios_base::binary);
+	core::file_write f_writer;
+	f_writer.open(p_file, core::file_write::open_mode::create);
 	if(f_writer.is_open())
 	{
-		std_ostream t_writer{f_writer};
+		file_ostream t_writer{f_writer};
 		return save(t_writer, p_flags, p_version, p_encoding);
 	}
 	return Error::Unable2Write;
