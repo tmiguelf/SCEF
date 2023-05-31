@@ -235,7 +235,7 @@ Error WriteVersion(stream_encoder& p_encoder, uint16_t p_version)
 		return static_cast<Error>(ret);
 	}
 	{
-		std::array<char8_t, core::to_chars_dec_max_digits_v<uint16_t>> t_buff;
+		std::array<char8_t, core::to_chars_dec_max_size_v<uint16_t>> t_buff;
 		ret = p_encoder.put_flat(std::u8string_view{t_buff.data(), core::to_chars(p_version, t_buff)});
 		if(ret != stream_error::None)
 		{
