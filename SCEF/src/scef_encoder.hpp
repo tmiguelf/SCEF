@@ -28,7 +28,7 @@
 #include <cstdint>
 #include <array>
 
-#include <CoreLib/Core_Alternate.hpp>
+#include <CoreLib/core_alternate.hpp>
 
 #include <SCEF/scef_stream.hpp>
 

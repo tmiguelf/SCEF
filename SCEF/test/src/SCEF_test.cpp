@@ -30,11 +30,11 @@
 
 #include <SCEF/SCEF.hpp>
 
-#include <CoreLib/Core_Type.hpp>
+#include <CoreLib/core_type.hpp>
 
 using namespace core::literals;
 
-#include <CoreLib/Core_OS.hpp>
+#include <CoreLib/core_os.hpp>
 
 std::filesystem::path getAppPath()
 {

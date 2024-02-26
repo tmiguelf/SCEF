@@ -28,8 +28,8 @@
 #include <memory>
 #include <fstream>
 
-#include <CoreLib/Core_Endian.hpp>
-#include <CoreLib/Core_File.hpp>
+#include <CoreLib/core_endian.hpp>
+#include <CoreLib/core_file.hpp>
 
 #include "scef_encoder.hpp"
 #include "scef_format.hpp"

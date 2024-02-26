@@ -27,7 +27,7 @@
 
 #include <span>
 
-#include <CoreLib/Core_Endian.hpp>
+#include <CoreLib/core_endian.hpp>
 #include <CoreLib/string/core_string_encoding.hpp>
 
 namespace scef

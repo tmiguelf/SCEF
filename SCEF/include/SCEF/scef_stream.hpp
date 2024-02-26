@@ -29,7 +29,7 @@
 #include <istream>
 #include <ostream>
 #include <filesystem>
-#include <CoreLib/Core_File.hpp>
+#include <CoreLib/core_file.hpp>
 
 namespace scef
 {
