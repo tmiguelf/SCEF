@@ -2,15 +2,19 @@
 	path = submodules/quickMSBuild
 	url = ../quickMSBuild.git
 	ignore = dirty
+	fetchRecurseSubmodules = false
 [submodule "submodules/quick_cmake"]
 	path = submodules/quick_cmake
 	url = ../quick_cmake.git
 	ignore = dirty
+	fetchRecurseSubmodules = false
 [submodule "submodules/utilities"]
 	path = submodules/utilities
 	url = ../utilities.git
 	ignore = dirty
+	fetchRecurseSubmodules = false
 [submodule "submodules/googletest"]
 	path = submodules/googletest
 	url = ../googletest.git
 	ignore = dirty
+	fetchRecurseSubmodules = false
