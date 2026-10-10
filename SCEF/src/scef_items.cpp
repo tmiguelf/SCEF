@@ -139,7 +139,7 @@ void lineSpace::set_spacing(std::u8string_view p_spacing)
 	_space = p_spacing;
 	for(char8_t& val : _space)
 	{
-		if(!is_space_noLF(val)) val = ' ';
+		if(!is_space_noLF(static_cast<char32_t>(val))) val = ' ';
 	}
 }
 
@@ -149,7 +149,7 @@ void lineSpace::append_spacing(std::u8string_view p_spacing)
 	_space.append(p_spacing);
 	for(uintptr_t i = size, postSize = _space.size(); i < postSize; ++i)
 	{
-		if(!is_space_noLF(_space[i])) _space[i] = ' ';
+		if(!is_space_noLF(static_cast<char32_t>(_space[i]))) _space[i] = ' ';
 	}
 }
 
@@ -160,7 +160,7 @@ void multiLineSpace::set_spacing(uint64_t p_lines, const std::u8string& p_spacin
 	_space = p_spacing;
 	for(char8_t& val : _space)
 	{
-		if(!is_space_noLF(val)) val = ' ';
+		if(!is_space_noLF(static_cast<char32_t>(val))) val = ' ';
 	}
 }
 
@@ -171,7 +171,7 @@ void multiLineSpace::append_spacing(uint64_t p_lines, const std::u8string& p_spa
 	_space.append(p_spacing);
 	for(uintptr_t i = size, postSize = _space.size(); i < postSize; ++i)
 	{
-		if(!is_space_noLF(_space[i])) _space[i] = ' ';
+		if(!is_space_noLF(static_cast<char32_t>(_space[i]))) _space[i] = ' ';
 	}
 }
 

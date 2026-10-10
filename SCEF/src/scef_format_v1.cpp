@@ -367,7 +367,7 @@ static Error ReadTrashSingleQuote(ReaderFlow& p_flow)
 	{
 		lastError = static_cast<Error>(decoder.read_while(trashSingleQuote, nullptr));
 
-magic$continuation:
+	label_magic_continuation:
 		if(lastError != Error::None)
 		{
 			return lastError;
@@ -382,7 +382,7 @@ magic$continuation:
 			case '^':
 				//Handle escape sequence
 				lastError = ReadTrashEscapeSequence(p_flow);
-				goto magic$continuation;
+				goto label_magic_continuation;
 			default:
 				break;
 		}
@@ -398,7 +398,7 @@ static Error ReadTrashDoubleQuote(ReaderFlow& p_flow)
 	{
 		lastError = static_cast<Error>(decoder.read_while(trashDoubleQuote, nullptr));
 
-magic$continuation:
+	label_magic_continuation:
 		if(lastError != Error::None)
 		{
 			return lastError;
@@ -413,7 +413,7 @@ magic$continuation:
 			case '^':
 				//Handle escape sequence
 				lastError = ReadTrashEscapeSequence(p_flow);
-				goto magic$continuation;
+				goto label_magic_continuation;
 			default:
 				break;
 		}
@@ -654,7 +654,7 @@ static Error ReadSingleQuote(ReaderFlow& p_flow, std::u32string& p_out)
 	{
 		lastError = static_cast<Error>(decoder.read_while(loadSingleQuote, &p_out));
 
-magic$continuation:
+	label_magic_continuation:
 		if(lastError != Error::None)
 		{
 			if(lastError == Error::Control_EndOfStream)
@@ -698,7 +698,7 @@ magic$continuation:
 			case '^':
 				//Handle escape sequence
 				lastError = ReadEscapeSequence(p_flow, p_out);
-				goto magic$continuation;
+				goto label_magic_continuation;
 			default:
 				p_out.push_back(decoder.lastChar());
 				break;
@@ -716,7 +716,7 @@ static Error ReadDoubleQuote(ReaderFlow& p_flow, std::u32string& p_out)
 	{
 		lastError = static_cast<Error>(decoder.read_while(loadDoubleQuote, &p_out));
 
-magic$continuation:
+	label_magic_continuation:
 		if(lastError != Error::None)
 		{
 			if(lastError == Error::Control_EndOfStream)
@@ -760,7 +760,7 @@ magic$continuation:
 			case '^':
 				//Handle escape sequence
 				lastError = ReadEscapeSequence(p_flow, p_out);
-				goto magic$continuation;
+				goto label_magic_continuation;
 			default:
 				p_out.push_back(decoder.lastChar());
 				break;
@@ -1397,7 +1397,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 						return static_cast<Error>(str_err);
 				}
 			}
-			goto ReadGroup$HeaderEnd;
+			goto label_read_group_header_end;
 		case '\n':
 		case '=':
 		case '<':
@@ -1418,7 +1418,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 			}
 		[[fallthrough]];
 		case ':':
-			goto ReadGroup$HeaderEnd;
+			goto label_read_group_header_end;
 		case '>':
 			_p::Danger_Action::publicError(*twarn._error_context).set_position(decoder.line(), decoder.column());
 			_p::Danger_Action::publicError(*twarn._error_context).SetErrorInvalidChar(decoder.lastChar(), ':');
@@ -1624,7 +1624,7 @@ static Error ReadGroup(ReaderFlow& p_flow, group& p_group)
 			break;
 	}
 
-ReadGroup$HeaderEnd:
+label_read_group_header_end:
 	_p::Danger_Action::publicError(*twarn._error_context).m_stack.push_back(&p_group);
 	_p::Danger_Action::publicError(*twarn._error_context).m_criticalItem = nullptr;
 	do

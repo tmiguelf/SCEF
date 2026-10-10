@@ -28,6 +28,7 @@
 #include "scef_format.hpp"
 
 #include <cstdint>
+#include <array>
 #include <CoreLib/string/core_string_numeric.hpp>
 
 #include "scef_encoder.hpp"
@@ -90,7 +91,7 @@ namespace
 	{
 		stream_decoder& m_decoder;
 		uint8_t m_count = 1;
-		char8_t data[5];
+		std::array<char8_t, 5> data{};
 	};
 
 	static bool collectVersion(char32_t p_char, void* p_context)
@@ -203,7 +204,7 @@ Error FinishVersionDecoding(stream_decoder& p_decoder, uint16_t& p_version, Erro
 			return Error::BadFormat;
 		}
 
-		core::from_chars_result<uint16_t> num_res = core::from_chars<uint16_t>(std::u8string_view{context.data, context.m_count});
+		core::from_chars_result<uint16_t> num_res = core::from_chars<uint16_t>(std::u8string_view{context.data.data(), context.m_count});
 		if(!num_res.has_value())
 		{
 			return Error::UnsuportedVersion;

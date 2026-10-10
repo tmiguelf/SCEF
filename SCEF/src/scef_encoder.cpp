@@ -28,6 +28,7 @@
 #include "scef_encoder.hpp"
 
 #include <span>
+#include <array>
 
 #include <CoreLib/core_endian.hpp>
 #include <CoreLib/string/core_string_encoding.hpp>
@@ -136,69 +137,73 @@ stream_decoder::result_t Stream_UTF8_Decoder::v_get_char()
 				return stream_error::BadEncoding;
 			}
 			return
-				((char32_t{r} &0x1F) << 6) |
-				( char32_t{r1} &0x3F);
+				((static_cast<char32_t>(r) & 0x1F) << 6) |
+				( static_cast<char32_t>(r1) &0x3F);
 		}
 		if((r & 0xF0) == 0xE0) //level 2
 		{
-			char8_t r1[2];
-			stream_error ret = extract_utf8_layers(m_reader, std::span<char8_t>{r1, 2});
+			std::array<char8_t, 2> r1;
+			stream_error ret = extract_utf8_layers(m_reader, r1);
 			if(ret != stream_error::None) return ret;
 			return
-				((char32_t{r} & 0x0F) << 12) |
-				((char32_t{r1[0]} & 0x3F) << 6) |
-				( char32_t{r1[1]} & 0x3F);
+				((static_cast<char32_t>(r) & 0x0F) << 12) |
+				((static_cast<char32_t>(r1[0]) & 0x3F) << 6) |
+				( static_cast<char32_t>(r1[1]) & 0x3F);
 		}
 		if((r & 0xF8) == 0xF0) //level 3
 		{
-			char8_t r1[3];
-			stream_error ret = extract_utf8_layers(m_reader, std::span<char8_t>{r1, 3});
+			std::array<char8_t, 3> r1;
+			stream_error ret = extract_utf8_layers(m_reader, r1);
 			if(ret != stream_error::None) return ret;
 			//todo code point validation
-			return ((char32_t{r} & 0x07) << 18) | ((char32_t{r1[0]} & 0x3F) << 12) | ((char32_t{r1[1]} & 0x3F) << 6) | (char32_t{r1[2]} & 0x3F);
+			return
+				((static_cast<char32_t>(r) & 0x07) << 18) |
+				((static_cast<char32_t>(r1[0]) & 0x3F) << 12) |
+				((static_cast<char32_t>(r1[1]) & 0x3F) << 6) |
+				( static_cast<char32_t>(r1[2]) & 0x3F);
 		}
 		if((r & 0xFC) == 0xF8) //level 4
 		{
-			char8_t r1[4];
-			stream_error ret = extract_utf8_layers(m_reader, std::span<char8_t>{r1, 4});
+			std::array<char8_t, 4> r1;
+			stream_error ret = extract_utf8_layers(m_reader, r1);
 			if(ret != stream_error::None) return ret;
 
 			return
-				((char32_t{r} & 0x03) << 24) |
-				((char32_t{r1[0]} & 0x3F) << 18) |
-				((char32_t{r1[1]} & 0x3F) << 12) |
-				((char32_t{r1[2]} & 0x3F) << 6) |
-				( char32_t{r1[3]} & 0x3F);
+				((static_cast<char32_t>(r) & 0x03) << 24) |
+				((static_cast<char32_t>(r1[0]) & 0x3F) << 18) |
+				((static_cast<char32_t>(r1[1]) & 0x3F) << 12) |
+				((static_cast<char32_t>(r1[2]) & 0x3F) << 6) |
+				( static_cast<char32_t>(r1[3]) & 0x3F);
 		}
 		if((r & 0xFE) == 0xFC) //level 5
 		{
-			char8_t r1[5];
-			stream_error ret = extract_utf8_layers(m_reader, std::span<char8_t>{r1, 5});
+			std::array<char8_t, 5> r1;
+			stream_error ret = extract_utf8_layers(m_reader, r1);
 			if(ret != stream_error::None) return ret;
 
 			return
-				((char32_t{r} & 0x03) << 30) |
-				((char32_t{r1[0]} & 0x3F) << 24) |
-				((char32_t{r1[1]} & 0x3F) << 18) |
-				((char32_t{r1[2]} & 0x3F) << 12) |
-				((char32_t{r1[3]} & 0x3F) << 6) |
-				( char32_t{r1[4]} & 0x3F);
+				((static_cast<char32_t>(r) & 0x03) << 30) |
+				((static_cast<char32_t>(r1[0]) & 0x3F) << 24) |
+				((static_cast<char32_t>(r1[1]) & 0x3F) << 18) |
+				((static_cast<char32_t>(r1[2]) & 0x3F) << 12) |
+				((static_cast<char32_t>(r1[3]) & 0x3F) << 6) |
+				( static_cast<char32_t>(r1[4]) & 0x3F);
 		}
 		if((r & 0xFF) == 0xFE) //level 6
 		{
-			char8_t r1[6];
-			stream_error ret = extract_utf8_layers(m_reader, std::span<char8_t>{r1, 6});
+			std::array<char8_t, 6> r1;
+			stream_error ret = extract_utf8_layers(m_reader, r1);
 			if(ret != stream_error::None) return ret;
 
 			if((r1[0] & 0x3F) > 0x03) return stream_error::BadEncoding;
 
 			return
-				((char32_t{r1[0]} & 0x03) << 30) |
-				((char32_t{r1[1]} & 0x3F) << 24) |
-				((char32_t{r1[2]} & 0x3F) << 18) |
-				((char32_t{r1[3]} & 0x3F) << 12) |
-				((char32_t{r1[4]} & 0x3F) << 6) |
-				( char32_t{r1[5]} & 0x3F);
+				((static_cast<char32_t>(r1[0]) & 0x03) << 30) |
+				((static_cast<char32_t>(r1[1]) & 0x3F) << 24) |
+				((static_cast<char32_t>(r1[2]) & 0x3F) << 18) |
+				((static_cast<char32_t>(r1[3]) & 0x3F) << 12) |
+				((static_cast<char32_t>(r1[4]) & 0x3F) << 6) |
+				( static_cast<char32_t>(r1[5]) & 0x3F);
 		}
 		return stream_error::BadEncoding;
 	}
@@ -228,46 +233,50 @@ stream_decoder::result_t Stream_UTF8_Decoder_s::v_get_char()
 
 			if(((r & 0x1F) < 0x02)) return stream_error::BadEncoding;
 			return
-				((char32_t{r} &0x1F) << 6) |
-				( char32_t{r1} &0x3F);
+				((static_cast<char32_t>(r) &0x1F) << 6) |
+				( static_cast<char32_t>(r1) &0x3F);
 		}
 		if((r & 0xF0) == 0xE0) //level 2
 		{
-			char8_t r1[2];
-			stream_error ret = extract_utf8_layers(m_reader, std::span<char8_t>{r1, 2});
+			std::array<char8_t, 2> r1;
+			stream_error ret = extract_utf8_layers(m_reader, r1);
 			if(ret != stream_error::None) return ret;
 
 			if((r & 0x0F) == 0 && (r1[0] & 0x3F) < 0x20) return stream_error::BadEncoding;
 			return
-				((char32_t{r} & 0x0F) << 12) |
-				((char32_t{r1[0]} & 0x3F) << 6) |
-				( char32_t{r1[1]} & 0x3F);
+				((static_cast<char32_t>(r) & 0x0F) << 12) |
+				((static_cast<char32_t>(r1[0]) & 0x3F) << 6) |
+				( static_cast<char32_t>(r1[1]) & 0x3F);
 		}
 		if((r & 0xF8) == 0xF0) //level 3
 		{
-			char8_t r1[3];
-			stream_error ret = extract_utf8_layers(m_reader, std::span<char8_t>{r1, 3});
+			std::array<char8_t, 3> r1;
+			stream_error ret = extract_utf8_layers(m_reader, r1);
 			if(ret != stream_error::None) return ret;
 
 			if((r & 0x07) == 0 && (r1[0] & 0x3F) < 0x10) return stream_error::BadEncoding;
-			return ((char32_t{r} & 0x07) << 18) | ((char32_t{r1[0]} & 0x3F) << 12) | ((char32_t{r1[1]} & 0x3F) << 6) | (char32_t{r1[2]} & 0x3F);
+			return
+				((static_cast<char32_t>(r) & 0x07) << 18) |
+				((static_cast<char32_t>(r1[0]) & 0x3F) << 12) |
+				((static_cast<char32_t>(r1[1]) & 0x3F) << 6) |
+				( static_cast<char32_t>(r1[2]) & 0x3F);
 		}
 		if((r & 0xFC) == 0xF8) //level 4
 		{
-			char8_t r1[4];
-			stream_error ret = extract_utf8_layers(m_reader, std::span<char8_t>{r1, 4});
+			std::array<char8_t, 4> r1;
+			stream_error ret = extract_utf8_layers(m_reader, r1);
 			if(ret != stream_error::None) return ret;
 		}
 		else if((r & 0xFE) == 0xFC) //level 5
 		{
-			char8_t r1[5];
-			stream_error ret = extract_utf8_layers(m_reader, std::span<char8_t>{r1, 5});
+			std::array<char8_t, 5> r1;
+			stream_error ret = extract_utf8_layers(m_reader, r1);
 			if(ret != stream_error::None) return ret;
 		}
 		else if((r & 0xFF) == 0xFE) //level 6
 		{
-			char8_t r1[6];
-			stream_error ret = extract_utf8_layers(m_reader, std::span<char8_t>{r1, 6});
+			std::array<char8_t, 6> r1;
+			stream_error ret = extract_utf8_layers(m_reader, r1);
 			if(ret != stream_error::None) return ret;
 		}
 		return stream_error::BadEncoding;
@@ -301,12 +310,12 @@ stream_decoder::result_t Stream_UTF16LE_Decoder::v_get_char()
 		if(t_col != 2) return (m_reader.stat() == stream_error::Control_EndOfStream) ? stream_error::BadEncoding : stream_error::Unable2Read;
 
 		r1 = core::endian_little2host(r1);
-		if((r1 & 0xFC00) != 0xDC0)
+		if((r1 & 0xFC00) != 0xDC00)
 		{
 			m_reader.set_pos(m_reader.pos() - 2);
 			return stream_error::BadEncoding;
 		}
-		return (((char32_t{r} & 0x03FF) << 10) | (char32_t{r1} & 0x03FF)) + 0x10000;
+		return (((static_cast<char32_t>(r) & 0x03FF) << 10) | (static_cast<char32_t>(r1) & 0x03FF)) + 0x10000;
 	}
 	return static_cast<char32_t>(r);
 }
@@ -337,12 +346,12 @@ stream_decoder::result_t Stream_UTF16BE_Decoder::v_get_char()
 		if(t_col != 2) return (m_reader.stat() == stream_error::Control_EndOfStream) ? stream_error::BadEncoding : stream_error::Unable2Read;
 
 		r1 = core::endian_big2host(r1);
-		if((r1 & 0xFC00) != 0xDC0)
+		if((r1 & 0xFC00) != 0xDC00)
 		{
 			m_reader.set_pos(m_reader.pos() - 2);
 			return stream_error::BadEncoding;
 		}
-		return (((char32_t{r} & 0x03FF) << 10) | (char32_t{r1} & 0x03FF)) + 0x10000;
+		return (((static_cast<char32_t>(r) & 0x03FF) << 10) | (static_cast<char32_t>(r1) & 0x03FF)) + 0x10000;
 	}
 	return static_cast<char32_t>(r);
 }
