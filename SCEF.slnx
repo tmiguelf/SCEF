@@ -1,0 +1,26 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <BuildType Name="WSL_Debug" />
+    <BuildType Name="WSL_Release" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="SCEF/SCEF.vcxproj" Id="e02ad9b7-192b-490c-8cac-85726836fb18" />
+  <Project Path="SCEF/test/SCEF_test.vcxproj" Id="0c991a1e-a33c-488c-9a09-d66cba784f66">
+    <Deploy Solution="WSL_Debug|*" />
+    <Deploy Solution="WSL_Release|*" />
+  </Project>
+  <Project Path="submodules/googletest/googlemock/googlemock.vcxproj" Id="d093761a-08df-4a74-a0e3-f34db77a2118">
+    <Deploy Solution="WSL_Debug|*" />
+    <Deploy Solution="WSL_Release|*" />
+  </Project>
+  <Project Path="submodules/googletest/googletest/googletest.vcxproj" Id="0db6a04f-669b-47b3-9689-7b1a7f4c0943">
+    <Deploy Solution="WSL_Debug|*" />
+    <Deploy Solution="WSL_Release|*" />
+  </Project>
+  <Project Path="submodules/utilities/CoreLib/CoreLib.vcxproj" Id="ea04e8e6-b05b-416e-b0a3-218406672173">
+    <Deploy Solution="WSL_Debug|*" />
+    <Deploy Solution="WSL_Release|*" />
+  </Project>
+</Solution>

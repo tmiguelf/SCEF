@@ -1,3 +1,11 @@
+[submodule "submodules/quickMSBuild"]
+	path = submodules/quickMSBuild
+	url = ../quickMSBuild.git
+	ignore = dirty
+[submodule "submodules/quick_cmake"]
+	path = submodules/quick_cmake
+	url = ../quick_cmake.git
+	ignore = dirty
 [submodule "submodules/utilities"]
 	path = submodules/utilities
 	url = ../utilities.git
@@ -5,8 +13,4 @@
 [submodule "submodules/googletest"]
 	path = submodules/googletest
 	url = ../googletest.git
-	ignore = dirty
-[submodule "submodules/quick_cmake"]
-	path = submodules/quick_cmake
-	url = ./quick_cmake.git
 	ignore = dirty
